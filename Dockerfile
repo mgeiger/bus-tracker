@@ -19,5 +19,5 @@ RUN python -c "import sqlite3; conn = sqlite3.connect('database.db'); conn.close
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Run the app
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Run the app with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
