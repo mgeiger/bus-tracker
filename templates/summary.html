@@ -4,6 +4,7 @@
 
 {% block head_extra %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.4/build/index.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -29,21 +30,46 @@
         </div>
     </div>
     
-    <div class="card p-4 mb-4">
-        <h2 class="card-title">Average Departure Time Trend</h2>
-        <div class="card-body">
-            <canvas id="departureChart" style="max-height: 400px;"></canvas>
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card p-4">
+                <h2 class="card-title">Average Departure Time Trend</h2>
+                <div class="card-body">
+                    <canvas id="departureChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card p-4">
+                <h2 class="card-title">Average Arrival Time Trend</h2>
+                <div class="card-body">
+                    <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card p-4">
-        <h2 class="card-title">Average Arrival Time Trend</h2>
-        <div class="card-body">
-            <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card p-4">
+                <h2 class="card-title">Arrival Time Distribution</h2>
+                <div class="card-body">
+                    <canvas id="boxplotArrivalsChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card p-4">
+                <h2 class="card-title">Departure Time Distribution</h2>
+                <div class="card-body">
+                    <canvas id="boxplotDeparturesChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
-
 {% block scripts_extra %}
     <script>
         async function fetchSummaryData() {
@@ -88,7 +114,6 @@
                 }
             });
 
-            // The function to convert minutes to a formatted time string
             function formatMinutesToTime(minutes) {
                 if (minutes === null) return '';
                 const hours = Math.floor(minutes / 60);
@@ -99,7 +124,6 @@
                 return `${displayHours}:${displayMins} ${ampm}`;
             }
 
-            // Common options for both charts
             const chartOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -119,7 +143,6 @@
                 }
             };
 
-            // Create the Departure line chart with filtered data
             const departureCtx = document.getElementById('departureChart').getContext('2d');
             new Chart(departureCtx, {
                 type: 'line',
@@ -133,7 +156,6 @@
                 options: chartOptions
             });
 
-            // Create the Arrival line chart with filtered data
             const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
             new Chart(arrivalCtx, {
                 type: 'line',
@@ -143,6 +165,45 @@
                         ...arrivalDataset,
                         data: filteredArrivalData
                     }],
+                },
+                options: chartOptions
+            });
+
+            // New: Separate Box Plot Charts for Arrivals and Departures
+            const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
+            new Chart(boxplotArrivalsCtx, {
+                type: 'boxplot',
+                data: {
+                    labels: dayOrder,
+                    datasets: [{
+                        label: 'Arrivals',
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        outlierColor: '#999999',
+                        padding: 10,
+                        itemRadius: 0,
+                        data: dayOrder.map(day => data.box_plot_data.arrivals[day])
+                    }]
+                },
+                options: chartOptions
+            });
+
+            const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart').getContext('2d');
+            new Chart(boxplotDeparturesCtx, {
+                type: 'boxplot',
+                data: {
+                    labels: dayOrder,
+                    datasets: [{
+                        label: 'Departures',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        outlierColor: '#999999',
+                        padding: 10,
+                        itemRadius: 0,
+                        data: dayOrder.map(day => data.box_plot_data.departures[day])
+                    }]
                 },
                 options: chartOptions
             });
