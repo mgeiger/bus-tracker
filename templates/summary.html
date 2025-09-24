@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Summary Data{% endblock %}
+
+{% block head_extra %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Summary Data</h1>
+    <div class="card p-4 mb-4">
+        <h2 class="card-title">Times by Day of the Week</h2>
+        <div class="card-body">
+            <table class="table table-striped" id="averageTimesTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Day</th>
+                        <th scope="col">Avg. Departure</th>
+                        <th scope="col">Min. Departure</th>
+                        <th scope="col">Avg. Arrival</th>
+                        <th scope="col">Min. Arrival</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card p-4 mb-4">
+        <h2 class="card-title">Average Departure Time Trend</h2>
+        <div class="card-body">
+            <canvas id="departureChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <h2 class="card-title">Average Arrival Time Trend</h2>
+        <div class="card-body">
+            <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script>
+        async function fetchSummaryData() {
+            const response = await fetch('/api/summary-data');
+            const data = await response.json();
+
+            if (data.message) {
+                document.body.innerHTML = `<div class="container mt-5"><div class="alert alert-info">${data.message}</div></div>`;
+                return;
+            }
+
+            const tableBody = document.querySelector('#averageTimesTable tbody');
+            const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            
+            for (const day of dayOrder) {
+                const avgTimes = data.average_times[day] || {};
+                const minTimes = data.min_times[day] || {};
+                
+                const avgArrivalTime = avgTimes.arrival || 'N/A';
+                const minArrivalTime = minTimes.arrival || 'N/A';
+                const avgDepartureTime = avgTimes.departure || 'N/A';
+                const minDepartureTime = minTimes.departure || 'N/A';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${day}</td><td>${avgDepartureTime}</td><td>${minDepartureTime}</td><td>${avgArrivalTime}</td><td>${minArrivalTime}</td>`;
+                tableBody.appendChild(row);
+            }
+            
+            const allLabels = data.line_chart_data.labels;
+            const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
+            const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
+
+            const filteredLabels = [];
+            const filteredDepartureData = [];
+            const filteredArrivalData = [];
+
+            allLabels.forEach((label, index) => {
+                if (dayOrder.includes(label)) {
+                    filteredLabels.push(label);
+                    filteredDepartureData.push(departureDataset.data[index]);
+                    filteredArrivalData.push(arrivalDataset.data[index]);
+                }
+            });
+
+            // The function to convert minutes to a formatted time string
+            function formatMinutesToTime(minutes) {
+                if (minutes === null) return '';
+                const hours = Math.floor(minutes / 60);
+                const mins = Math.round(minutes % 60);
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                const displayMins = mins.toString().padStart(2, '0');
+                return `${displayHours}:${displayMins} ${ampm}`;
+            }
+
+            // Common options for both charts
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        },
+                        ticks: {
+                            callback: function(value, index, ticks) {
+                                return formatMinutesToTime(value);
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Create the Departure line chart with filtered data
+            const departureCtx = document.getElementById('departureChart').getContext('2d');
+            new Chart(departureCtx, {
+                type: 'line',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        ...departureDataset,
+                        data: filteredDepartureData
+                    }],
+                },
+                options: chartOptions
+            });
+
+            // Create the Arrival line chart with filtered data
+            const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
+            new Chart(arrivalCtx, {
+                type: 'line',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        ...arrivalDataset,
+                        data: filteredArrivalData
+                    }],
+                },
+                options: chartOptions
+            });
+        }
+        
+        fetchSummaryData();
+    </script>
+{% endblock %}
