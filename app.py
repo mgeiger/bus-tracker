@@ -31,6 +31,10 @@ init_db()
 def summary():
     return render_template('summary.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
 @app.route('/api/submit', methods=['POST'])
 def submit_data():
     data = request.get_json()

@@ -72,6 +72,7 @@ def test_outlier_filtering_logic():
 
 def test_static_routes(client):
     assert client.get('/').status_code == 200
+    assert client.get('/favicon.ico').status_code == 204
 
 def test_api_crud_workflow(client, mock_db):
     # 1. Submit Data
