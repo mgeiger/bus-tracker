@@ -310,32 +310,52 @@
                     options: chartOptions
                 }));
 
-                // Weekly Trend Charts
-                const allLabels = data.line_chart_data.labels;
-                const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
-                const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
+            // Weekly Trend Charts
+            const allLabels = data.line_chart_data.labels;
+            const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
+            const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
 
-                if (departureDataset && arrivalDataset) {
-                    const departureCtx = document.getElementById('departureChart').getContext('2d');
-                    charts.push(new Chart(departureCtx, {
-                        type: 'line',
-                        data: {
-                            labels: dayOrder,
-                            datasets: [{ ...departureDataset, borderColor: '#ff6384', backgroundColor: '#ff6384', pointRadius: 4, data: dayOrder.map(d => departureDataset.data[allLabels.indexOf(d)]) }],
-                        },
-                        options: chartOptions
-                    }));
+            if (departureDataset) {
+                const departureCtx = document.getElementById('departureChart').getContext('2d');
+                charts.push(new Chart(departureCtx, {
+                    type: 'line',
+                    data: {
+                        labels: dayOrder,
+                        datasets: [{ 
+                            ...departureDataset, 
+                            borderColor: '#ff6384', 
+                            backgroundColor: '#ff6384', 
+                            pointRadius: 4, 
+                            data: dayOrder.map(d => {
+                                const idx = allLabels.indexOf(d);
+                                return idx !== -1 ? departureDataset.data[idx] : null;
+                            })
+                        }],
+                    },
+                    options: chartOptions
+                }));
+            }
 
-                    const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
-                    charts.push(new Chart(arrivalCtx, {
-                        type: 'line',
-                        data: {
-                            labels: dayOrder,
-                            datasets: [{ ...arrivalDataset, borderColor: '#4361ee', backgroundColor: '#4361ee', pointRadius: 4, data: dayOrder.map(d => arrivalDataset.data[allLabels.indexOf(d)]) }],
-                        },
-                        options: chartOptions
-                    }));
-                }
+            if (arrivalDataset) {
+                const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
+                charts.push(new Chart(arrivalCtx, {
+                    type: 'line',
+                    data: {
+                        labels: dayOrder,
+                        datasets: [{ 
+                            ...arrivalDataset, 
+                            borderColor: '#4361ee', 
+                            backgroundColor: '#4361ee', 
+                            pointRadius: 4, 
+                            data: dayOrder.map(d => {
+                                const idx = allLabels.indexOf(d);
+                                return idx !== -1 ? arrivalDataset.data[idx] : null;
+                            })
+                        }],
+                    },
+                    options: chartOptions
+                }));
+            }
 
                 // Weekly Box Plots
                 const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
