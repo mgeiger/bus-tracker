@@ -45,10 +45,30 @@ def test_minutes_to_12h_format():
     assert minutes_to_12h_format(pd.NA) is None
 
 def test_outlier_filtering_logic():
-    data = {'time_in_minutes': [240, 300, 600, 1320, 1380]}
+    # Mocking the new IQR filtering logic
+    data = {
+        'day_of_week': ['Monday'] * 10,
+        'type': ['arrival'] * 10,
+        'time_in_minutes': [480, 485, 490, 495, 500, 505, 510, 515, 520, 1000] # 1000 is a clear outlier
+    }
     df = pd.DataFrame(data)
-    filtered_df = df[(df['time_in_minutes'] >= 300) & (df['time_in_minutes'] <= 1320)]
-    assert len(filtered_df) == 3
+    
+    def filter_outliers(group):
+        if len(group) < 4:
+            return group
+        q1 = group['time_in_minutes'].quantile(0.25)
+        q3 = group['time_in_minutes'].quantile(0.75)
+        iqr = q3 - q1
+        return group[
+            (group['time_in_minutes'] >= q1 - 1.5 * iqr) & 
+            (group['time_in_minutes'] <= q3 + 1.5 * iqr)
+        ]
+
+    filtered_df = df.groupby(['day_of_week', 'type'], group_keys=False).apply(filter_outliers)
+    
+    assert 1000 not in filtered_df['time_in_minutes'].values
+    assert len(filtered_df) == 9
+    assert filtered_df['time_in_minutes'].max() == 520
 
 def test_static_routes(client):
     assert client.get('/').status_code == 200

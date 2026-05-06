@@ -133,14 +133,32 @@ def get_summary_data():
     df['day_of_week'] = df['datetime'].dt.day_name()
     df['time_in_minutes'] = df['datetime'].dt.hour * 60 + df['datetime'].dt.minute
 
-    # Filter out extreme outliers (e.g., 3 AM entries that should have been 3 PM)
-    # Most bus activity happens between 5 AM (300) and 10 PM (1320)
-    df = df[(df['time_in_minutes'] >= 300) & (df['time_in_minutes'] <= 1320)]
+    # Baseline filter for extreme times (5 AM to 11 PM)
+    df = df[(df['time_in_minutes'] >= 300) & (df['time_in_minutes'] <= 1380)]
+
+    # Robust outlier filtering using IQR per (day, type)
+    def filter_outliers(group):
+        if len(group) < 4:  # Not enough data for reliable IQR
+            return group
+        q1 = group['time_in_minutes'].quantile(0.25)
+        q3 = group['time_in_minutes'].quantile(0.75)
+        iqr = q3 - q1
+        return group[
+            (group['time_in_minutes'] >= q1 - 1.5 * iqr) & 
+            (group['time_in_minutes'] <= q3 + 1.5 * iqr)
+        ]
+
+    # Apply filtering per group and reconstruct the dataframe
+    df = pd.concat([filter_outliers(group) for _, group in df.groupby(['day_of_week', 'type'])])
 
     if df.empty:
         return jsonify({"message": "No valid data available after outlier filtering."}), 404
 
-    stats_df = df.groupby(['day_of_week', 'type'])['time_in_minutes'].agg(['mean', 'min']).reset_index()
+    # Modern named aggregation for clarity and robustness
+    stats_df = df.groupby(['day_of_week', 'type'])['time_in_minutes'].agg(
+        avg='mean',
+        minimum='min'
+    ).reset_index()
 
     average_times_dict = {}
     min_times_dict = {}
@@ -149,8 +167,8 @@ def get_summary_data():
         day = row['day_of_week']
         entry_type = row['type']
         
-        avg_minutes = row['mean']
-        min_minutes = row['min']
+        avg_minutes = row['avg']
+        min_minutes = row['minimum']
         
         if day not in average_times_dict:
             average_times_dict[day] = {}

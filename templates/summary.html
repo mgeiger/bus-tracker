@@ -43,41 +43,76 @@
         </div>
     </div>
     
-    <div class="row">
-        <div class="col-12 col-md-6 mb-4">
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card p-4">
-                <h2 class="card-title">Average Departure Time Trend</h2>
-                <div class="card-body">
-                    <canvas id="departureChart" style="max-height: 400px;"></canvas>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <h2 class="card-title mb-0 me-3">Daily Focus:</h2>
+                        <select id="daySelect" class="form-select w-auto">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showWeeklyToggle">
+                        <label class="form-check-label" for="showWeeklyToggle">Show Extended Information</label>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 mb-4">
-            <div class="card p-4">
-                <h2 class="card-title">Average Arrival Time Trend</h2>
-                <div class="card-body">
-                    <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <h4 class="text-center">Departures</h4>
+                        <canvas id="todayDepartureChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <h4 class="text-center">Arrivals</h4>
+                        <canvas id="todayArrivalChart" style="max-height: 300px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12 col-md-6 mb-4">
-            <div class="card p-4">
-                <h2 class="card-title">Departure Time Distribution</h2>
-                <div class="card-body">
-                    <canvas id="boxplotDeparturesChart" style="max-height: 400px;"></canvas>
+    <div id="weeklyChartsSection" style="display: none;">
+        <div class="row">
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card p-4">
+                    <h2 class="card-title">Average Departure Time Trend</h2>
+                    <div class="card-body">
+                        <canvas id="departureChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card p-4">
+                    <h2 class="card-title">Average Arrival Time Trend</h2>
+                    <div class="card-body">
+                        <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 mb-4">
-            <div class="card p-4">
-                <h2 class="card-title">Arrival Time Distribution</h2>
-                <div class="card-body">
-                    <canvas id="boxplotArrivalsChart" style="max-height: 400px;"></canvas>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card p-4">
+                    <h2 class="card-title">Departure Time Distribution (Weekly)</h2>
+                    <div class="card-body">
+                        <canvas id="boxplotDeparturesChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card p-4">
+                    <h2 class="card-title">Arrival Time Distribution (Weekly)</h2>
+                    <div class="card-body">
+                        <canvas id="boxplotArrivalsChart" style="max-height: 400px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,66 +121,29 @@
 {% block scripts_extra %}
     <script>
         let charts = [];
+        let globalData = null;
+        const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        
+        // Determine today's name and set the dropdown default
+        const todayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+        const daySelect = document.getElementById('daySelect');
+        if (dayOrder.includes(todayName)) {
+            daySelect.value = todayName;
+        } else {
+            daySelect.value = 'Monday'; // Default to Monday if it's the weekend
+        }
 
         function destroyCharts() {
             charts.forEach(chart => chart.destroy());
             charts = [];
         }
 
-        async function fetchSummaryData() {
-            const filter = document.querySelector('input[name="filter"]:checked').value;
-            const response = await fetch(`/api/summary-data?filter=${filter}`);
-            
-            const alertContainer = document.getElementById('alertContainer');
-            const tableBody = document.querySelector('#averageTimesTable tbody');
-            
-            // Clear previous state
-            alertContainer.innerHTML = '';
-            tableBody.innerHTML = '';
+        function renderCharts(data) {
             destroyCharts();
-
-            if (!response.ok) {
-                const result = await response.json();
-                alertContainer.innerHTML = `<div class="alert alert-info">${result.message || 'Error fetching data.'}</div>`;
-                return;
-            }
-
-            const data = await response.json();
-
-            const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-            
-            for (const day of dayOrder) {
-                const avgTimes = data.average_times[day] || {};
-                const minTimes = data.min_times[day] || {};
-                
-                const avgArrivalTime = avgTimes.arrival || 'N/A';
-                const minArrivalTime = minTimes.arrival || 'N/A';
-                const avgDepartureTime = avgTimes.departure || 'N/A';
-                const minDepartureTime = minTimes.departure || 'N/A';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${day}</td><td>${avgDepartureTime}</td><td>${minDepartureTime}</td><td>${avgArrivalTime}</td><td>${minArrivalTime}</td>`;
-                tableBody.appendChild(row);
-            }
-            
-            const allLabels = data.line_chart_data.labels;
-            const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
-            const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
-
-            const filteredLabels = [];
-            const filteredDepartureData = [];
-            const filteredArrivalData = [];
-
-            allLabels.forEach((label, index) => {
-                if (dayOrder.includes(label)) {
-                    filteredLabels.push(label);
-                    filteredDepartureData.push(departureDataset.data[index]);
-                    filteredArrivalData.push(arrivalDataset.data[index]);
-                }
-            });
+            const selectedDay = daySelect.value;
 
             function formatMinutesToTime(minutes) {
-                if (minutes === null) return '';
+                if (minutes === null || isNaN(minutes)) return '';
                 const hours = Math.floor(minutes / 60);
                 const mins = Math.round(minutes % 60);
                 const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -160,28 +158,76 @@
                 scales: {
                     y: {
                         beginAtZero: false,
-                        title: {
-                            display: true,
-                            text: 'Time'
-                        },
-                        ticks: {
-                            callback: function(value, index, ticks) {
-                                return formatMinutesToTime(value);
+                        ticks: { callback: (v) => formatMinutesToTime(v) }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                if (context.dataset.type === 'boxplot' || context.chart.config.type === 'boxplot') {
+                                    const stats = context.raw;
+                                    return [
+                                        `Max: ${formatMinutesToTime(stats.max)}`,
+                                        `Q3: ${formatMinutesToTime(stats.q3)}`,
+                                        `Median: ${formatMinutesToTime(stats.median)}`,
+                                        `Q1: ${formatMinutesToTime(stats.q1)}`,
+                                        `Min: ${formatMinutesToTime(stats.min)}`
+                                    ];
+                                }
+                                return `${context.dataset.label}: ${formatMinutesToTime(context.parsed.y)}`;
                             }
                         }
                     }
                 }
             };
 
+            // Focus Charts for Selected Day
+            const todayArrivalCtx = document.getElementById('todayArrivalChart').getContext('2d');
+            charts.push(new Chart(todayArrivalCtx, {
+                type: 'boxplot',
+                data: {
+                    labels: [selectedDay],
+                    datasets: [{
+                        label: 'Arrivals',
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        itemRadius: 3,
+                        data: [data.box_plot_data.arrivals[selectedDay] || []]
+                    }]
+                },
+                options: chartOptions
+            }));
+
+            const todayDepartureCtx = document.getElementById('todayDepartureChart').getContext('2d');
+            charts.push(new Chart(todayDepartureCtx, {
+                type: 'boxplot',
+                data: {
+                    labels: [selectedDay],
+                    datasets: [{
+                        label: 'Departures',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        itemRadius: 3,
+                        data: [data.box_plot_data.departures[selectedDay] || []]
+                    }]
+                },
+                options: chartOptions
+            }));
+
+            // Weekly Trend Charts
+            const allLabels = data.line_chart_data.labels;
+            const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
+            const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
+
             const departureCtx = document.getElementById('departureChart').getContext('2d');
             charts.push(new Chart(departureCtx, {
                 type: 'line',
                 data: {
-                    labels: filteredLabels,
-                    datasets: [{
-                        ...departureDataset,
-                        data: filteredDepartureData
-                    }],
+                    labels: dayOrder,
+                    datasets: [{ ...departureDataset, data: dayOrder.map(d => departureDataset.data[allLabels.indexOf(d)]) }],
                 },
                 options: chartOptions
             }));
@@ -190,16 +236,13 @@
             charts.push(new Chart(arrivalCtx, {
                 type: 'line',
                 data: {
-                    labels: filteredLabels,
-                    datasets: [{
-                        ...arrivalDataset,
-                        data: filteredArrivalData
-                    }],
+                    labels: dayOrder,
+                    datasets: [{ ...arrivalDataset, data: dayOrder.map(d => arrivalDataset.data[allLabels.indexOf(d)]) }],
                 },
                 options: chartOptions
             }));
 
-            // New: Separate Box Plot Charts for Arrivals and Departures
+            // Weekly Box Plots
             const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
             charts.push(new Chart(boxplotArrivalsCtx, {
                 type: 'boxplot',
@@ -210,8 +253,6 @@
                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
-                        outlierColor: '#999999',
-                        padding: 10,
                         itemRadius: 0,
                         data: dayOrder.map(day => data.box_plot_data.arrivals[day])
                     }]
@@ -229,20 +270,57 @@
                         backgroundColor: 'rgba(255, 99, 132, 0.5)',
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
-                        outlierColor: '#999999',
-                        padding: 10,
                         itemRadius: 0,
                         data: dayOrder.map(day => data.box_plot_data.departures[day])
                     }]
                 },
                 options: chartOptions
             }));
+        }
+
+        async function fetchSummaryData() {
+            const filter = document.querySelector('input[name="filter"]:checked').value;
+            const response = await fetch(`/api/summary-data?filter=${filter}`);
+            
+            const alertContainer = document.getElementById('alertContainer');
+            const tableBody = document.querySelector('#averageTimesTable tbody');
+            
+            alertContainer.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (!response.ok) {
+                const result = await response.json();
+                alertContainer.innerHTML = `<div class="alert alert-info">${result.message || 'Error fetching data.'}</div>`;
+                destroyCharts();
+                return;
             }
 
-            document.querySelectorAll('input[name="filter"]').forEach(radio => {
-            radio.addEventListener('change', fetchSummaryData);
-            });
+            globalData = await response.json();
+            
+            for (const day of dayOrder) {
+                const avgTimes = globalData.average_times[day] || {};
+                const minTimes = globalData.min_times[day] || {};
+                const avgArrivalTime = avgTimes.arrival || 'N/A';
+                const minArrivalTime = minTimes.arrival || 'N/A';
+                const avgDepartureTime = avgTimes.departure || 'N/A';
+                const minDepartureTime = minTimes.departure || 'N/A';
+                
+                const row = document.createElement('tr');
+                if (day === todayName) row.classList.add('table-primary');
+                row.innerHTML = `<td>${day}</td><td>${avgDepartureTime}</td><td>${minDepartureTime}</td><td>${avgArrivalTime}</td><td>${minArrivalTime}</td>`;
+                tableBody.appendChild(row);
+            }
 
-            fetchSummaryData();
-            </script>
+            renderCharts(globalData);
+        }
+        
+        document.querySelectorAll('input[name="filter"]').forEach(radio => radio.addEventListener('change', fetchSummaryData));
+        daySelect.addEventListener('change', () => { if(globalData) renderCharts(globalData); });
+        
+        document.getElementById('showWeeklyToggle').addEventListener('change', (e) => {
+            document.getElementById('weeklyChartsSection').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        fetchSummaryData();
+    </script>
             {% endblock %}
