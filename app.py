@@ -187,10 +187,11 @@ def get_summary_data():
         ]
 
     # Apply filtering per group and reconstruct the dataframe
-    df = pd.concat([filter_outliers(group) for _, group in df.groupby(['day_of_week', 'type'])])
-
-    if df.empty:
+    filtered_groups = [filter_outliers(group) for _, group in df.groupby(['day_of_week', 'type'])]
+    if not filtered_groups or all(g.empty for g in filtered_groups):
         return jsonify({"message": "No valid data available after outlier filtering."}), 404
+    
+    df = pd.concat(filtered_groups)
 
     # Modern named aggregation for clarity and robustness
     stats_df = df.groupby(['day_of_week', 'type'])['time_in_minutes'].agg(

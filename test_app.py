@@ -82,20 +82,60 @@ def test_api_crud_workflow(client, mock_db):
     response = client.post('/api/submit', data=json.dumps(payload), content_type='application/json')
     assert response.status_code == 201
     
-    # 3. Get Data (Verify insertion)
-    with app.app_context():
-        df = pd.read_sql_query("SELECT * FROM entries", mock_db)
-        assert len(df) == 1
-        record_id = int(df.iloc[0]['id'])
+    # 3. Get Entries
+    response = client.get('/api/entries')
+    assert response.status_code == 200
+    entries = response.get_json()
+    assert len(entries) == 1
+    record_id = entries[0]['id']
 
-    # 4. Update Data (Success)
-    update_payload = {'id': record_id, 'date': '2026-05-05', 'time': '16:00', 'type': 'departure', 'pin': TEST_PIN}
+    # 4. Update Data (Fail with wrong PIN)
+    update_payload = {'id': record_id, 'date': '2026-05-05', 'time': '16:00', 'type': 'departure', 'pin': 'wrong'}
+    response = client.post('/api/update-data', data=json.dumps(update_payload), content_type='application/json')
+    assert response.status_code == 401
+
+    # 5. Update Data (Success)
+    update_payload['pin'] = TEST_PIN
     response = client.post('/api/update-data', data=json.dumps(update_payload), content_type='application/json')
     assert response.status_code == 200
     
-    # 5. Delete Data (Success)
+    # 6. Delete Data (Fail with no ID)
+    response = client.post('/api/delete-data', data=json.dumps({'pin': TEST_PIN}), content_type='application/json')
+    assert response.status_code == 400
+
+    # 7. Delete Data (Fail with wrong PIN)
+    response = client.post('/api/delete-data', data=json.dumps({'id': record_id, 'pin': 'wrong'}), content_type='application/json')
+    assert response.status_code == 401
+
+    # 8. Delete Data (Success)
     response = client.post('/api/delete-data', data=json.dumps({'id': record_id, 'pin': TEST_PIN}), content_type='application/json')
     assert response.status_code == 200
+
+    # 9. Delete Data (Not Found)
+    response = client.post('/api/delete-data', data=json.dumps({'id': 9999, 'pin': TEST_PIN}), content_type='application/json')
+    assert response.status_code == 404
+
+def test_api_summary_filtering(client, mock_db):
+    # Setup: Add data inside and outside current school year
+    mock_db.execute("INSERT INTO entries (date, time, type) VALUES ('2026-05-05', '08:00', 'arrival')")
+    mock_db.execute("INSERT INTO entries (date, time, type) VALUES ('2020-05-05', '08:00', 'arrival')")
+    mock_db.commit()
+
+    # All filter
+    response = client.get('/api/summary-data?filter=all')
+    assert response.status_code == 200
+    
+    # Current filter (should exclude 2020)
+    response = client.get('/api/summary-data?filter=current')
+    assert response.status_code == 200
+
+def test_api_summary_no_valid_data_after_outliers(client, mock_db):
+    # Add only extreme outliers (e.g., 2 AM)
+    mock_db.execute("INSERT INTO entries (date, time, type) VALUES ('2026-05-05', '02:00', 'arrival')")
+    mock_db.commit()
+    response = client.get('/api/summary-data?filter=all')
+    assert response.status_code == 404
+    assert "outlier filtering" in response.get_json()['message']
 
 def test_api_summary_empty(client, mock_db):
     response = client.get('/api/summary-data')
