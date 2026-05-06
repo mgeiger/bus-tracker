@@ -4,4 +4,4 @@ __pycache__/
 *.sqlite3
 .git/
 .gitignore
-.DS_Store
+.DS_Store.env

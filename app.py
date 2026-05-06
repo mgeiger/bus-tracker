@@ -1,9 +1,15 @@
+import os
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 import pandas as pd
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+
+ENTRY_PIN = os.getenv('ENTRY_PIN')
 
 # Function to get a database connection
 def get_db_connection():
@@ -35,9 +41,29 @@ def summary():
 def favicon():
     return '', 204
 
+@app.route('/api/config')
+def get_config():
+    return jsonify({"pin_required": bool(ENTRY_PIN)})
+
+def check_pin(data):
+    if not ENTRY_PIN:
+        return True
+    provided_pin = data.get('pin')
+    return provided_pin == ENTRY_PIN
+
+@app.route('/api/verify-pin', methods=['POST'])
+def verify_pin():
+    data = request.get_json()
+    if check_pin(data):
+        return jsonify({"message": "Valid PIN"}), 200
+    return jsonify({"message": "Invalid PIN"}), 401
+
 @app.route('/api/submit', methods=['POST'])
 def submit_data():
     data = request.get_json()
+    if not check_pin(data):
+        return jsonify({"message": "Invalid or missing PIN"}), 401
+    
     date = data['date']
     time = data['time']
     entry_type = data['type']
@@ -48,15 +74,25 @@ def submit_data():
         conn.commit()
     return jsonify({"message": "Data submitted successfully!"}), 201
 
+@app.route('/api/entries')
+def get_entries():
+    # Returns last 100 entries for management
+    with get_db_connection() as conn:
+        data = conn.execute("SELECT id, date, time, type FROM entries ORDER BY date DESC, time DESC LIMIT 100").fetchall()
+    return jsonify([dict(row) for row in data])
+
 @app.route('/api/update-data', methods=['POST'])
 def update_data():
     data = request.get_json()
-    record_id = data['id']
-    new_date = data['date']
-    new_time = data['time']
-    new_type = data['type']
+    if not check_pin(data):
+        return jsonify({"message": "Invalid or missing PIN"}), 401
 
     try:
+        record_id = data['id']
+        new_date = data['date']
+        new_time = data['time']
+        new_type = data['type']
+
         with get_db_connection() as conn:
             conn.execute(
                 "UPDATE entries SET date = ?, time = ?, type = ? WHERE id = ?",
@@ -64,14 +100,16 @@ def update_data():
             )
             conn.commit()
         return jsonify({"message": "Record updated successfully!"}), 200
-    except sqlite3.Error as e:
+    except (sqlite3.Error, KeyError) as e:
         return jsonify({"message": f"Error updating record: {e}"}), 500
 
 @app.route('/api/delete-data', methods=['POST'])
 def delete_data():
     data = request.get_json()
-    record_id = data.get('id')
+    if not check_pin(data):
+        return jsonify({"message": "Invalid or missing PIN"}), 401
 
+    record_id = data.get('id')
     if not record_id:
         return jsonify({"message": "ID is required to delete a record."}), 400
 
