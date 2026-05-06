@@ -245,14 +245,20 @@
                         bodyFont: { size: 12 },
                         callbacks: {
                             label: (context) => {
+                                // For boxplot, the stats are calculated by the plugin and stored in context.raw
                                 if (context.dataset.type === 'boxplot' || context.chart.config.type === 'boxplot') {
                                     const stats = context.raw;
+                                    // Handle both array-of-values and pre-calculated stat objects
+                                    const s = (stats && typeof stats === 'object' && 'median' in stats) ? stats : context.parsed;
+                                    
+                                    if (!s || s.median === undefined) return 'No data';
+                                    
                                     return [
-                                        `Max: ${formatMinutesToTime(stats.max)}`,
-                                        `Q3: ${formatMinutesToTime(stats.q3)}`,
-                                        `Median: ${formatMinutesToTime(stats.median)}`,
-                                        `Q1: ${formatMinutesToTime(stats.q1)}`,
-                                        `Min: ${formatMinutesToTime(stats.min)}`
+                                        `Max: ${formatMinutesToTime(s.max)}`,
+                                        `Q3: ${formatMinutesToTime(s.q3)}`,
+                                        `Median: ${formatMinutesToTime(s.median)}`,
+                                        `Q1: ${formatMinutesToTime(s.q1)}`,
+                                        `Min: ${formatMinutesToTime(s.min)}`
                                     ];
                                 }
                                 return `${context.dataset.label}: ${formatMinutesToTime(context.parsed.y)}`;
