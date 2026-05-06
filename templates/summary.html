@@ -8,7 +8,20 @@
 {% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Summary Data</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Summary Data</h1>
+        <div>
+            <div class="btn-group me-2" role="group" aria-label="School Year Filter">
+                <input type="radio" class="btn-check" name="filter" id="filterCurrent" value="current" checked autocomplete="off">
+                <label class="btn btn-outline-secondary" for="filterCurrent">Current School Year</label>
+                
+                <input type="radio" class="btn-check" name="filter" id="filterAll" value="all" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="filterAll">All Years</label>
+            </div>
+            <a href="/entry" class="btn btn-primary">Add Data</a>
+        </div>
+    </div>
+    <div id="alertContainer"></div>
     <div class="card p-4 mb-4">
         <h2 class="card-title">Times by Day of the Week</h2>
         <div class="card-body">
@@ -72,16 +85,33 @@
 {% endblock %}
 {% block scripts_extra %}
     <script>
-        async function fetchSummaryData() {
-            const response = await fetch('/api/summary-data');
-            const data = await response.json();
+        let charts = [];
 
-            if (data.message) {
-                document.body.innerHTML = `<div class="container mt-5"><div class="alert alert-info">${data.message}</div></div>`;
+        function destroyCharts() {
+            charts.forEach(chart => chart.destroy());
+            charts = [];
+        }
+
+        async function fetchSummaryData() {
+            const filter = document.querySelector('input[name="filter"]:checked').value;
+            const response = await fetch(`/api/summary-data?filter=${filter}`);
+            
+            const alertContainer = document.getElementById('alertContainer');
+            const tableBody = document.querySelector('#averageTimesTable tbody');
+            
+            // Clear previous state
+            alertContainer.innerHTML = '';
+            tableBody.innerHTML = '';
+            destroyCharts();
+
+            if (!response.ok) {
+                const result = await response.json();
+                alertContainer.innerHTML = `<div class="alert alert-info">${result.message || 'Error fetching data.'}</div>`;
                 return;
             }
 
-            const tableBody = document.querySelector('#averageTimesTable tbody');
+            const data = await response.json();
+
             const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             
             for (const day of dayOrder) {
@@ -144,7 +174,7 @@
             };
 
             const departureCtx = document.getElementById('departureChart').getContext('2d');
-            new Chart(departureCtx, {
+            charts.push(new Chart(departureCtx, {
                 type: 'line',
                 data: {
                     labels: filteredLabels,
@@ -154,10 +184,10 @@
                     }],
                 },
                 options: chartOptions
-            });
+            }));
 
             const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
-            new Chart(arrivalCtx, {
+            charts.push(new Chart(arrivalCtx, {
                 type: 'line',
                 data: {
                     labels: filteredLabels,
@@ -167,11 +197,11 @@
                     }],
                 },
                 options: chartOptions
-            });
+            }));
 
             // New: Separate Box Plot Charts for Arrivals and Departures
             const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
-            new Chart(boxplotArrivalsCtx, {
+            charts.push(new Chart(boxplotArrivalsCtx, {
                 type: 'boxplot',
                 data: {
                     labels: dayOrder,
@@ -187,10 +217,10 @@
                     }]
                 },
                 options: chartOptions
-            });
+            }));
 
             const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart').getContext('2d');
-            new Chart(boxplotDeparturesCtx, {
+            charts.push(new Chart(boxplotDeparturesCtx, {
                 type: 'boxplot',
                 data: {
                     labels: dayOrder,
@@ -206,9 +236,13 @@
                     }]
                 },
                 options: chartOptions
+            }));
+            }
+
+            document.querySelectorAll('input[name="filter"]').forEach(radio => {
+            radio.addEventListener('change', fetchSummaryData);
             });
-        }
-        
-        fetchSummaryData();
-    </script>
-{% endblock %}
+
+            fetchSummaryData();
+            </script>
+            {% endblock %}

@@ -28,16 +28,12 @@ def init_db():
 init_db()
 
 @app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/summary')
 def summary():
     return render_template('summary.html')
 
-@app.route('/raw-data')
-def raw_data_page():
-    return render_template('raw-data.html')
+@app.route('/entry')
+def index():
+    return render_template('index.html')
 
 @app.route('/api/submit', methods=['POST'])
 def submit_data():
@@ -90,14 +86,6 @@ def delete_data():
     except sqlite3.Error as e:
         return jsonify({"message": f"Error deleting record: {e}"}), 500
 
-@app.route('/api/raw-data')
-def get_raw_data():
-    with get_db_connection() as conn:
-        data = conn.execute("SELECT id, date, time, type FROM entries ORDER BY date DESC, time DESC").fetchall()
-    
-    raw_data = [dict(row) for row in data]
-    return jsonify(raw_data)
-
 def minutes_to_12h_format(minutes):
     if pd.isna(minutes):
         return None
@@ -117,6 +105,8 @@ def minutes_to_12h_format(minutes):
 
 @app.route('/api/summary-data')
 def get_summary_data():
+    filter_type = request.args.get('filter', 'current')
+    
     with get_db_connection() as conn:
         df = pd.read_sql_query("SELECT * FROM entries", conn)
 
@@ -124,8 +114,31 @@ def get_summary_data():
         return jsonify({"message": "No data available."}), 404
 
     df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'])
+    
+    if filter_type == 'current':
+        now = datetime.now()
+        if now.month >= 8:
+            start_year = now.year
+            end_year = now.year + 1
+        else:
+            start_year = now.year - 1
+            end_year = now.year
+        start_date = pd.to_datetime(f"{start_year}-08-01")
+        end_date = pd.to_datetime(f"{end_year}-07-31 23:59:59")
+        df = df[(df['datetime'] >= start_date) & (df['datetime'] <= end_date)]
+
+    if df.empty:
+        return jsonify({"message": "No data available for the selected filter."}), 404
+
     df['day_of_week'] = df['datetime'].dt.day_name()
     df['time_in_minutes'] = df['datetime'].dt.hour * 60 + df['datetime'].dt.minute
+
+    # Filter out extreme outliers (e.g., 3 AM entries that should have been 3 PM)
+    # Most bus activity happens between 5 AM (300) and 10 PM (1320)
+    df = df[(df['time_in_minutes'] >= 300) & (df['time_in_minutes'] <= 1320)]
+
+    if df.empty:
+        return jsonify({"message": "No valid data available after outlier filtering."}), 404
 
     stats_df = df.groupby(['day_of_week', 'type'])['time_in_minutes'].agg(['mean', 'min']).reset_index()
 
