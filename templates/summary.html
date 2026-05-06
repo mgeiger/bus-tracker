@@ -234,6 +234,7 @@
         let pinRequired = false;
         const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
+        // --- PIN Caching & Auth Logic ---
         const getCachedPin = () => {
             const cachedStr = localStorage.getItem('auth_pin');
             if (!cachedStr) return null;
@@ -248,7 +249,7 @@
         };
 
         const setCachedPin = (pin) => {
-            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000); // 30 days
             localStorage.setItem('auth_pin', JSON.stringify({ pin, expiry }));
         };
 
@@ -274,10 +275,12 @@
             updateAuthUI();
         };
 
+        // --- Chart Themes ---
         window.addEventListener('themeChanged', () => {
             if (globalData) renderCharts(globalData);
         });
 
+        // --- Core Functions ---
         const todayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
         const daySelect = document.getElementById('daySelect');
         if (dayOrder.includes(todayName)) {
@@ -306,7 +309,7 @@
             const selectedDay = daySelect.value;
             const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
             const gridColor = isDark ? '#333333' : '#f0f0f0';
-            const outlierColor = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
+            const outlierColor = isDark ? '#ffffff' : '#444444';
             const labelColor = '#adb5bd';
 
             const chartOptions = {
@@ -374,8 +377,9 @@
                                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                 borderColor: '#ff6384',
                                 outlierColor: outlierColor,
+                                outlierBackgroundColor: outlierColor,
                                 borderWidth: 2,
-                                itemRadius: 4,
+                                itemRadius: 6,
                                 data: [data.box_plot_data.departures[selectedDay] || []]
                             }]
                         },
@@ -394,8 +398,9 @@
                                 backgroundColor: 'rgba(67, 97, 238, 0.2)',
                                 borderColor: '#4361ee',
                                 outlierColor: outlierColor,
+                                outlierBackgroundColor: outlierColor,
                                 borderWidth: 2,
-                                itemRadius: 4,
+                                itemRadius: 6,
                                 data: [data.box_plot_data.arrivals[selectedDay] || []]
                             }]
                         },
@@ -465,8 +470,9 @@
                                 backgroundColor: 'rgba(67, 97, 238, 0.1)',
                                 borderColor: '#4361ee',
                                 outlierColor: outlierColor,
+                                outlierBackgroundColor: outlierColor,
                                 borderWidth: 1,
-                                itemRadius: 0,
+                                itemRadius: 4,
                                 data: dayOrder.map(day => data.box_plot_data.arrivals[day] || [])
                             }]
                         },
@@ -485,8 +491,9 @@
                                 backgroundColor: 'rgba(255, 99, 132, 0.1)',
                                 borderColor: '#ff6384',
                                 outlierColor: outlierColor,
+                                outlierBackgroundColor: outlierColor,
                                 borderWidth: 1,
-                                itemRadius: 0,
+                                itemRadius: 4,
                                 data: dayOrder.map(day => data.box_plot_data.departures[day] || [])
                             }]
                         },
@@ -517,12 +524,11 @@
                     const avgTimes = globalData.average_times[day] || {};
                     const minTimes = globalData.min_times[day] || {};
                     const isToday = (day === todayName);
-                    
                     const row = document.createElement('tr');
                     if (isToday) row.classList.add('table-primary');
                     
-                    const minDepClass = isToday ? 'text-danger fw-bold' : 'text-muted';
-                    const minArrClass = isToday ? 'text-danger fw-bold' : 'text-muted';
+                    const minDepClass = isToday ? 'text-danger fw-bold' : 'text-muted small';
+                    const minArrClass = isToday ? 'text-danger fw-bold' : 'text-muted small';
 
                     row.innerHTML = `
                         <td class="px-4 py-3 fw-semibold">${day}</td>
