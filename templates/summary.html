@@ -8,18 +8,21 @@
 {% endblock %}
 
 {% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Summary Data</h1>
+    <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <div class="btn-group me-2" role="group" aria-label="School Year Filter">
+            <h1 class="h2 fw-bold mb-1">Analytics Dashboard</h1>
+            <p class="text-muted mb-0">Overview of bus performance and timing distributions</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="btn-group" role="group" aria-label="School Year Filter">
                 <input type="radio" class="btn-check" name="filter" id="filterCurrent" value="current" checked autocomplete="off">
-                <label class="btn btn-outline-secondary" for="filterCurrent">Current School Year</label>
+                <label class="btn btn-outline-secondary px-3" for="filterCurrent">Current Year</label>
                 
                 <input type="radio" class="btn-check" name="filter" id="filterAll" value="all" autocomplete="off">
-                <label class="btn btn-outline-secondary" for="filterAll">All Years</label>
+                <label class="btn btn-outline-secondary px-3" for="filterAll">All Years</label>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dataEntryModal">
-                Add Data
+            <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#dataEntryModal">
+                <span class="me-1">+</span> Add New Entry
             </button>
         </div>
     </div>
@@ -27,24 +30,24 @@
     <!-- Data Entry Modal -->
     <div class="modal fade" id="dataEntryModal" tabindex="-1" aria-labelledby="dataEntryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="dataEntryModalLabel">New Bus Entry</h5>
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="dataEntryModalLabel">New Bus Entry</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body px-4">
                     <form id="dataForm">
                         <div class="mb-3">
-                            <label for="date" class="form-label">Date:</label>
-                            <input type="date" id="date" class="form-control" required>
+                            <label for="date" class="form-label text-muted small fw-bold text-uppercase">Date</label>
+                            <input type="date" id="date" class="form-control form-control-lg bg-light border-0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="time" class="form-label">Time:</label>
-                            <input type="time" id="time" class="form-control" required>
+                            <label for="time" class="form-label text-muted small fw-bold text-uppercase">Time</label>
+                            <input type="time" id="time" class="form-control form-control-lg bg-light border-0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="type" class="form-label">Type:</label>
-                            <select id="type" class="form-select" required>
+                            <label for="type" class="form-label text-muted small fw-bold text-uppercase">Entry Type</label>
+                            <select id="type" class="form-select form-control-lg bg-light border-0" required>
                                 <option value="departure">Departure</option>
                                 <option value="arrival">Arrival</option>
                             </select>
@@ -52,26 +55,28 @@
                         <div id="modalMessage" class="mt-3"></div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" form="dataForm" class="btn btn-primary">Submit</button>
+                <div class="modal-footer border-top-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="dataForm" class="btn btn-primary px-4">Submit Entry</button>
                 </div>
             </div>
         </div>
     </div>
-    <div id="alertContainer"></div>
-    <div class="card p-4 mb-4">
-        <h2 class="card-title">Times by Day of the Week</h2>
-        <div class="card-body">
+
+    <div class="card p-0 mb-4 overflow-hidden border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom py-3 px-4">
+            <h2 class="h5 fw-semibold mb-0">Weekly Summary</h2>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-striped" id="averageTimesTable">
-                    <thead>
+                <table class="table table-hover mb-0" id="averageTimesTable">
+                    <thead class="table-light">
                         <tr>
-                            <th scope="col">Day</th>
-                            <th scope="col">Avg. Departure</th>
-                            <th scope="col">Min. Departure</th>
-                            <th scope="col">Avg. Arrival</th>
-                            <th scope="col">Min. Arrival</th>
+                            <th scope="col" class="px-4 py-3 border-0">Day of Week</th>
+                            <th scope="col" class="py-3 text-secondary border-0 text-center">Avg. Departure</th>
+                            <th scope="col" class="py-3 text-secondary border-0 text-center">Min. Departure</th>
+                            <th scope="col" class="py-3 text-secondary border-0 text-center">Avg. Arrival</th>
+                            <th scope="col" class="py-3 text-secondary border-0 text-center">Min. Arrival</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,31 +88,39 @@
     
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex align-items-center">
-                        <h2 class="card-title mb-0 me-3">Daily Focus:</h2>
-                        <select id="daySelect" class="form-select w-auto">
+            <div class="card p-4 border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h4 fw-bold mb-0">Daily Distribution Focus</h2>
+                        <span class="text-muted small">Detailed box-plot analysis for the selected day</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <select id="daySelect" class="form-select border-0 bg-light fw-medium" style="width: 160px; height: 45px;">
                             <option value="Monday">Monday</option>
                             <option value="Tuesday">Tuesday</option>
                             <option value="Wednesday">Wednesday</option>
                             <option value="Thursday">Thursday</option>
                             <option value="Friday">Friday</option>
                         </select>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="showWeeklyToggle">
-                        <label class="form-check-label" for="showWeeklyToggle">Show Extended Information</label>
+                        <div class="vr mx-2 h-75"></div>
+                        <div class="form-check form-switch mt-1">
+                            <input class="form-check-input" type="checkbox" id="showWeeklyToggle" style="cursor: pointer;">
+                            <label class="form-check-label fw-medium text-secondary" for="showWeeklyToggle" style="cursor: pointer;">Extended Info</label>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
-                        <h4 class="text-center">Departures</h4>
-                        <canvas id="todayDepartureChart" style="max-height: 300px;"></canvas>
+                        <div class="p-4 bg-light rounded-4">
+                            <h6 class="text-uppercase text-muted fw-bold small text-center mb-4 ls-wide">Departures</h6>
+                            <canvas id="todayDepartureChart" style="max-height: 300px;"></canvas>
+                        </div>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <h4 class="text-center">Arrivals</h4>
-                        <canvas id="todayArrivalChart" style="max-height: 300px;"></canvas>
+                        <div class="p-4 bg-light rounded-4">
+                            <h6 class="text-uppercase text-muted fw-bold small text-center mb-4 ls-wide">Arrivals</h6>
+                            <canvas id="todayArrivalChart" style="max-height: 300px;"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,18 +130,18 @@
     <div id="weeklyChartsSection" style="display: none;">
         <div class="row">
             <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4">
-                    <h2 class="card-title">Average Departure Time Trend</h2>
-                    <div class="card-body">
+                <div class="card p-4 border-0 shadow-sm">
+                    <h2 class="h5 fw-bold mb-4">Average Departure Trend</h2>
+                    <div class="card-body p-0">
                         <canvas id="departureChart" style="max-height: 400px;"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4">
-                    <h2 class="card-title">Average Arrival Time Trend</h2>
-                    <div class="card-body">
+                <div class="card p-4 border-0 shadow-sm">
+                    <h2 class="h5 fw-bold mb-4">Average Arrival Trend</h2>
+                    <div class="card-body p-0">
                         <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
                     </div>
                 </div>
@@ -137,18 +150,18 @@
 
         <div class="row">
             <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4">
-                    <h2 class="card-title">Departure Time Distribution (Weekly)</h2>
-                    <div class="card-body">
+                <div class="card p-4 border-0 shadow-sm">
+                    <h2 class="h5 fw-bold mb-4">Weekly Departure Distribution</h2>
+                    <div class="card-body p-0">
                         <canvas id="boxplotDeparturesChart" style="max-height: 400px;"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4">
-                    <h2 class="card-title">Arrival Time Distribution (Weekly)</h2>
-                    <div class="card-body">
+                <div class="card p-4 border-0 shadow-sm">
+                    <h2 class="h5 fw-bold mb-4">Weekly Arrival Distribution</h2>
+                    <div class="card-body p-0">
                         <canvas id="boxplotArrivalsChart" style="max-height: 400px;"></canvas>
                     </div>
                 </div>
@@ -158,8 +171,8 @@
 
     <!-- Submission Notification (Toast) -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-        <div id="submitToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
+        <div id="submitToast" class="toast align-items-center text-white bg-success border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex p-2">
                 <div class="toast-body">
                     <strong>Success!</strong> Submitted: <span id="toastDetails"></span>
                 </div>
@@ -168,6 +181,7 @@
         </div>
     </div>
 {% endblock %}
+
 {% block scripts_extra %}
     <script>
         let charts = [];
@@ -209,11 +223,26 @@
                     y: {
                         beginAtZero: false,
                         grace: '5%',
-                        ticks: { callback: (v) => formatMinutesToTime(v) }
+                        grid: { color: '#f0f0f0' },
+                        ticks: { 
+                            callback: (v) => formatMinutesToTime(v),
+                            color: '#adb5bd',
+                            font: { size: 11 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#adb5bd', font: { size: 11, weight: '600' } }
                     }
                 },
                 plugins: {
+                    legend: { display: false },
                     tooltip: {
+                        backgroundColor: 'rgba(26, 28, 35, 0.9)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
                         callbacks: {
                             label: (context) => {
                                 if (context.dataset.type === 'boxplot' || context.chart.config.type === 'boxplot') {
@@ -241,11 +270,11 @@
                     labels: [selectedDay],
                     datasets: [{
                         label: 'Arrivals',
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        outlierColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        borderColor: '#4361ee',
+                        outlierColor: 'rgba(67, 97, 238, 0.5)',
                         borderWidth: 2,
-                        itemRadius: 3,
+                        itemRadius: 4,
                         data: [data.box_plot_data.arrivals[selectedDay] || []]
                     }]
                 },
@@ -259,11 +288,11 @@
                     labels: [selectedDay],
                     datasets: [{
                         label: 'Departures',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        outlierColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: '#ff6384',
+                        outlierColor: 'rgba(255, 99, 132, 0.5)',
                         borderWidth: 2,
-                        itemRadius: 3,
+                        itemRadius: 4,
                         data: [data.box_plot_data.departures[selectedDay] || []]
                     }]
                 },
@@ -280,7 +309,7 @@
                 type: 'line',
                 data: {
                     labels: dayOrder,
-                    datasets: [{ ...departureDataset, data: dayOrder.map(d => departureDataset.data[allLabels.indexOf(d)]) }],
+                    datasets: [{ ...departureDataset, borderColor: '#ff6384', backgroundColor: '#ff6384', pointRadius: 4, data: dayOrder.map(d => departureDataset.data[allLabels.indexOf(d)]) }],
                 },
                 options: chartOptions
             }));
@@ -290,7 +319,7 @@
                 type: 'line',
                 data: {
                     labels: dayOrder,
-                    datasets: [{ ...arrivalDataset, data: dayOrder.map(d => arrivalDataset.data[allLabels.indexOf(d)]) }],
+                    datasets: [{ ...arrivalDataset, borderColor: '#4361ee', backgroundColor: '#4361ee', pointRadius: 4, data: dayOrder.map(d => arrivalDataset.data[allLabels.indexOf(d)]) }],
                 },
                 options: chartOptions
             }));
@@ -303,8 +332,8 @@
                     labels: dayOrder,
                     datasets: [{
                         label: 'Arrivals',
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderColor: '#4361ee',
                         borderWidth: 1,
                         itemRadius: 0,
                         data: dayOrder.map(day => data.box_plot_data.arrivals[day])
@@ -320,8 +349,8 @@
                     labels: dayOrder,
                     datasets: [{
                         label: 'Departures',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        borderColor: '#ff6384',
                         borderWidth: 1,
                         itemRadius: 0,
                         data: dayOrder.map(day => data.box_plot_data.departures[day])
@@ -343,7 +372,7 @@
 
             if (!response.ok) {
                 const result = await response.json();
-                alertContainer.innerHTML = `<div class="alert alert-info">${result.message || 'Error fetching data.'}</div>`;
+                alertContainer.innerHTML = `<div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">${result.message || 'Error fetching data.'}</div>`;
                 destroyCharts();
                 return;
             }
@@ -353,14 +382,20 @@
             for (const day of dayOrder) {
                 const avgTimes = globalData.average_times[day] || {};
                 const minTimes = globalData.min_times[day] || {};
-                const avgArrivalTime = avgTimes.arrival || 'N/A';
-                const minArrivalTime = minTimes.arrival || 'N/A';
-                const avgDepartureTime = avgTimes.departure || 'N/A';
-                const minDepartureTime = minTimes.departure || 'N/A';
+                const avgArrivalTime = avgTimes.arrival || '—';
+                const minArrivalTime = minTimes.arrival || '—';
+                const avgDepartureTime = avgTimes.departure || '—';
+                const minDepartureTime = minTimes.departure || '—';
                 
                 const row = document.createElement('tr');
-                if (day === todayName) row.classList.add('table-primary');
-                row.innerHTML = `<td>${day}</td><td>${avgDepartureTime}</td><td>${minDepartureTime}</td><td>${avgArrivalTime}</td><td>${minArrivalTime}</td>`;
+                if (day === todayName) row.classList.add('table-primary-subtle');
+                row.innerHTML = `
+                    <td class="px-4 py-3 fw-semibold">${day}</td>
+                    <td class="py-3 text-center text-dark">${avgDepartureTime}</td>
+                    <td class="py-3 text-center text-muted small">${minDepartureTime}</td>
+                    <td class="py-3 text-center text-dark">${avgArrivalTime}</td>
+                    <td class="py-3 text-center text-muted small">${minArrivalTime}</td>
+                `;
                 tableBody.appendChild(row);
             }
 
@@ -391,7 +426,7 @@
             });
 
             const result = await response.json();
-            modalMessage.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+            modalMessage.innerHTML = `<div class="alert alert-success border-0 shadow-sm small">${result.message}</div>`;
             
             // Show toast notification
             const toastDetails = document.getElementById('toastDetails');
@@ -405,10 +440,11 @@
 
             // Close modal after a short delay
             setTimeout(() => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('dataEntryModal'));
+                const modalEl = document.getElementById('dataEntryModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
                 modal.hide();
                 modalMessage.innerHTML = '';
-            }, 1500);
+            }, 1000);
         });
 
         // Set default date and time when the modal opens
@@ -426,4 +462,4 @@
 
         fetchSummaryData();
     </script>
-            {% endblock %}
+{% endblock %}
