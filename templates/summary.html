@@ -513,14 +513,20 @@
                 for (const day of dayOrder) {
                     const avgTimes = globalData.average_times[day] || {};
                     const minTimes = globalData.min_times[day] || {};
+                    const isToday = (day === todayName);
+                    
                     const row = document.createElement('tr');
-                    if (day === todayName) row.classList.add('table-primary');
+                    if (isToday) row.classList.add('table-primary');
+                    
+                    const minDepClass = isToday ? 'text-danger fw-bold' : 'text-muted';
+                    const minArrClass = isToday ? 'text-danger fw-bold' : 'text-muted';
+
                     row.innerHTML = `
                         <td class="px-4 py-3 fw-semibold">${day}</td>
                         <td class="py-3 text-center text-dark">${avgTimes.departure || '—'}</td>
-                        <td class="py-3 text-center text-muted small">${minTimes.departure || '—'}</td>
+                        <td class="py-3 text-center ${minDepClass}">${minTimes.departure || '—'}</td>
                         <td class="py-3 text-center text-dark">${avgTimes.arrival || '—'}</td>
-                        <td class="py-3 text-center text-muted small">${minTimes.arrival || '—'}</td>
+                        <td class="py-3 text-center ${minArrClass}">${minTimes.arrival || '—'}</td>
                     `;
                     tableBody.appendChild(row);
                 }
