@@ -63,6 +63,8 @@
         </div>
     </div>
 
+    <div id="alertContainer"></div>
+
     <div class="card p-0 mb-4 overflow-hidden border-0 shadow-sm">
         <div class="card-header bg-white border-bottom py-3 px-4">
             <h2 class="h5 fw-semibold mb-0">Weekly Summary</h2>
@@ -188,13 +190,12 @@
         let globalData = null;
         const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
-        // Determine today's name and set the dropdown default
         const todayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
         const daySelect = document.getElementById('daySelect');
         if (dayOrder.includes(todayName)) {
             daySelect.value = todayName;
         } else {
-            daySelect.value = 'Monday'; // Default to Monday if it's the weekend
+            daySelect.value = 'Monday';
         }
 
         function destroyCharts() {
@@ -249,10 +250,8 @@
                                                  (context.chart && context.chart.config && context.chart.config.type === 'boxplot');
                                 
                                 if (isBoxplot) {
-                                    // Use parsed data which contains the calculated stats
                                     const s = context.parsed;
                                     if (!s || typeof s !== 'object' || s.median === undefined) return 'No data';
-                                    
                                     return [
                                         `Max: ${formatMinutesToTime(s.max)}`,
                                         `Q3: ${formatMinutesToTime(s.q3)}`,
@@ -261,7 +260,6 @@
                                         `Min: ${formatMinutesToTime(s.min)}`
                                     ];
                                 }
-                                // Standard line chart tooltip
                                 if (context.parsed && context.parsed.y !== undefined) {
                                     return `${context.dataset.label}: ${formatMinutesToTime(context.parsed.y)}`;
                                 }
@@ -273,25 +271,6 @@
             };
 
             try {
-                // Focus Charts for Selected Day
-                const todayArrivalCtx = document.getElementById('todayArrivalChart').getContext('2d');
-                charts.push(new Chart(todayArrivalCtx, {
-                    type: 'boxplot',
-                    data: {
-                        labels: [selectedDay],
-                        datasets: [{
-                            label: 'Arrivals',
-                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                            borderColor: '#4361ee',
-                            outlierColor: 'rgba(67, 97, 238, 0.5)',
-                            borderWidth: 2,
-                            itemRadius: 4,
-                            data: [data.box_plot_data.arrivals[selectedDay] || []]
-                        }]
-                    },
-                    options: chartOptions
-                }));
-
                 const todayDepartureCtx = document.getElementById('todayDepartureChart').getContext('2d');
                 charts.push(new Chart(todayDepartureCtx, {
                     type: 'boxplot',
@@ -310,54 +289,71 @@
                     options: chartOptions
                 }));
 
-            // Weekly Trend Charts
-            const allLabels = data.line_chart_data.labels;
-            const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
-            const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
-
-            if (departureDataset) {
-                const departureCtx = document.getElementById('departureChart').getContext('2d');
-                charts.push(new Chart(departureCtx, {
-                    type: 'line',
+                const todayArrivalCtx = document.getElementById('todayArrivalChart').getContext('2d');
+                charts.push(new Chart(todayArrivalCtx, {
+                    type: 'boxplot',
                     data: {
-                        labels: dayOrder,
-                        datasets: [{ 
-                            ...departureDataset, 
-                            borderColor: '#ff6384', 
-                            backgroundColor: '#ff6384', 
-                            pointRadius: 4, 
-                            data: dayOrder.map(d => {
-                                const idx = allLabels.indexOf(d);
-                                return idx !== -1 ? departureDataset.data[idx] : null;
-                            })
-                        }],
+                        labels: [selectedDay],
+                        datasets: [{
+                            label: 'Arrivals',
+                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                            borderColor: '#4361ee',
+                            outlierColor: 'rgba(67, 97, 238, 0.5)',
+                            borderWidth: 2,
+                            itemRadius: 4,
+                            data: [data.box_plot_data.arrivals[selectedDay] || []]
+                        }]
                     },
                     options: chartOptions
                 }));
-            }
 
-            if (arrivalDataset) {
-                const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
-                charts.push(new Chart(arrivalCtx, {
-                    type: 'line',
-                    data: {
-                        labels: dayOrder,
-                        datasets: [{ 
-                            ...arrivalDataset, 
-                            borderColor: '#4361ee', 
-                            backgroundColor: '#4361ee', 
-                            pointRadius: 4, 
-                            data: dayOrder.map(d => {
-                                const idx = allLabels.indexOf(d);
-                                return idx !== -1 ? arrivalDataset.data[idx] : null;
-                            })
-                        }],
-                    },
-                    options: chartOptions
-                }));
-            }
+                // Weekly Trend Charts
+                const allLabels = data.line_chart_data.labels;
+                const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
+                const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
 
-                // Weekly Box Plots
+                if (departureDataset) {
+                    const departureCtx = document.getElementById('departureChart').getContext('2d');
+                    charts.push(new Chart(departureCtx, {
+                        type: 'line',
+                        data: {
+                            labels: dayOrder,
+                            datasets: [{ 
+                                ...departureDataset, 
+                                borderColor: '#ff6384', 
+                                backgroundColor: '#ff6384', 
+                                pointRadius: 4, 
+                                data: dayOrder.map(d => {
+                                    const idx = allLabels.indexOf(d);
+                                    return idx !== -1 ? departureDataset.data[idx] : null;
+                                })
+                            }],
+                        },
+                        options: chartOptions
+                    }));
+                }
+
+                if (arrivalDataset) {
+                    const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
+                    charts.push(new Chart(arrivalCtx, {
+                        type: 'line',
+                        data: {
+                            labels: dayOrder,
+                            datasets: [{ 
+                                ...arrivalDataset, 
+                                borderColor: '#4361ee', 
+                                backgroundColor: '#4361ee', 
+                                pointRadius: 4, 
+                                data: dayOrder.map(d => {
+                                    const idx = allLabels.indexOf(d);
+                                    return idx !== -1 ? arrivalDataset.data[idx] : null;
+                                })
+                            }],
+                        },
+                        options: chartOptions
+                    }));
+                }
+
                 const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
                 charts.push(new Chart(boxplotArrivalsCtx, {
                     type: 'boxplot',
@@ -376,7 +372,7 @@
                 }));
 
                 const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart').getContext('2d');
-                charts.push(new Chart(boxplotDeparturesCtx, {
+                charts.push(new Chart(boxplotDeparturesChart).getContext('2d'), {
                     type: 'boxplot',
                     data: {
                         labels: dayOrder,
@@ -390,52 +386,56 @@
                         }]
                     },
                     options: chartOptions
-                }));
+                });
             } catch (err) {
-                console.error("Chart rendering failed:", err);
+                console.error("Chart rendering sequence failed", err);
             }
         }
 
         async function fetchSummaryData() {
-            const filter = document.querySelector('input[name="filter"]:checked').value;
-            const response = await fetch(`/api/summary-data?filter=${filter}`);
-            
-            const alertContainer = document.getElementById('alertContainer');
-            const tableBody = document.querySelector('#averageTimesTable tbody');
-            
-            alertContainer.innerHTML = '';
-            tableBody.innerHTML = '';
-
-            if (!response.ok) {
-                const result = await response.json();
-                alertContainer.innerHTML = `<div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">${result.message || 'Error fetching data.'}</div>`;
-                destroyCharts();
-                return;
-            }
-
-            globalData = await response.json();
-            
-            for (const day of dayOrder) {
-                const avgTimes = globalData.average_times[day] || {};
-                const minTimes = globalData.min_times[day] || {};
-                const avgArrivalTime = avgTimes.arrival || '—';
-                const minArrivalTime = minTimes.arrival || '—';
-                const avgDepartureTime = avgTimes.departure || '—';
-                const minDepartureTime = minTimes.departure || '—';
+            try {
+                const filter = document.querySelector('input[name="filter"]:checked').value;
+                const response = await fetch(`/api/summary-data?filter=${filter}`);
                 
-                const row = document.createElement('tr');
-                if (day === todayName) row.classList.add('table-primary-subtle');
-                row.innerHTML = `
-                    <td class="px-4 py-3 fw-semibold">${day}</td>
-                    <td class="py-3 text-center text-dark">${avgDepartureTime}</td>
-                    <td class="py-3 text-center text-muted small">${minDepartureTime}</td>
-                    <td class="py-3 text-center text-dark">${avgArrivalTime}</td>
-                    <td class="py-3 text-center text-muted small">${minArrivalTime}</td>
-                `;
-                tableBody.appendChild(row);
-            }
+                const alertContainer = document.getElementById('alertContainer');
+                const tableBody = document.querySelector('#averageTimesTable tbody');
+                
+                alertContainer.innerHTML = '';
+                tableBody.innerHTML = '';
 
-            renderCharts(globalData);
+                if (!response.ok) {
+                    const result = await response.json();
+                    alertContainer.innerHTML = `<div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">${result.message || 'Error fetching data.'}</div>`;
+                    destroyCharts();
+                    return;
+                }
+
+                globalData = await response.json();
+                
+                for (const day of dayOrder) {
+                    const avgTimes = globalData.average_times[day] || {};
+                    const minTimes = globalData.min_times[day] || {};
+                    const avgArrivalTime = avgTimes.arrival || '—';
+                    const minArrivalTime = minTimes.arrival || '—';
+                    const avgDepartureTime = avgTimes.departure || '—';
+                    const minDepartureTime = minTimes.departure || '—';
+                    
+                    const row = document.createElement('tr');
+                    if (day === todayName) row.classList.add('table-primary-subtle');
+                    row.innerHTML = `
+                        <td class="px-4 py-3 fw-semibold">${day}</td>
+                        <td class="py-3 text-center text-dark">${avgDepartureTime}</td>
+                        <td class="py-3 text-center text-muted small">${minDepartureTime}</td>
+                        <td class="py-3 text-center text-dark">${avgArrivalTime}</td>
+                        <td class="py-3 text-center text-muted small">${minArrivalTime}</td>
+                    `;
+                    tableBody.appendChild(row);
+                }
+
+                renderCharts(globalData);
+            } catch (err) {
+                console.error("fetchSummaryData critical failure", err);
+            }
         }
         
         document.querySelectorAll('input[name="filter"]').forEach(radio => radio.addEventListener('change', fetchSummaryData));
@@ -445,7 +445,6 @@
             document.getElementById('weeklyChartsSection').style.display = e.target.checked ? 'block' : 'none';
         });
 
-        // Handle form submission for the modal
         document.getElementById('dataForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const date = document.getElementById('date').value;
@@ -455,35 +454,28 @@
 
             const response = await fetch('/api/submit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ date, time, type })
             });
 
             const result = await response.json();
             modalMessage.innerHTML = `<div class="alert alert-success border-0 shadow-sm small">${result.message}</div>`;
             
-            // Show toast notification
             const toastDetails = document.getElementById('toastDetails');
             toastDetails.innerText = `${date} at ${time} (${type})`;
             const toastEl = document.getElementById('submitToast');
             const toast = new bootstrap.Toast(toastEl);
             toast.show();
 
-            // Refetch data to update charts and table
             fetchSummaryData();
 
-            // Close modal after a short delay
             setTimeout(() => {
-                const modalEl = document.getElementById('dataEntryModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('dataEntryModal'));
                 modal.hide();
                 modalMessage.innerHTML = '';
             }, 1000);
         });
 
-        // Set default date and time when the modal opens
         document.getElementById('dataEntryModal').addEventListener('show.bs.modal', () => {
             const now = new Date();
             const year = now.getFullYear();
