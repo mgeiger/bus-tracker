@@ -234,7 +234,6 @@
         let pinRequired = false;
         const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         
-        // --- PIN Caching & Auth Logic ---
         const getCachedPin = () => {
             const cachedStr = localStorage.getItem('auth_pin');
             if (!cachedStr) return null;
@@ -249,7 +248,7 @@
         };
 
         const setCachedPin = (pin) => {
-            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000); // 30 days
+            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
             localStorage.setItem('auth_pin', JSON.stringify({ pin, expiry }));
         };
 
@@ -275,12 +274,10 @@
             updateAuthUI();
         };
 
-        // --- Chart Themes ---
         window.addEventListener('themeChanged', () => {
             if (globalData) renderCharts(globalData);
         });
 
-        // --- Core Functions ---
         const todayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
         const daySelect = document.getElementById('daySelect');
         if (dayOrder.includes(todayName)) {
@@ -365,41 +362,45 @@
             };
 
             try {
-                const todayDepartureCtx = document.getElementById('todayDepartureChart').getContext('2d');
-                charts.push(new Chart(todayDepartureCtx, {
-                    type: 'boxplot',
-                    data: {
-                        labels: [selectedDay],
-                        datasets: [{
-                            label: 'Departures',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: '#ff6384',
-                            outlierColor: 'rgba(255, 99, 132, 0.5)',
-                            borderWidth: 2,
-                            itemRadius: 4,
-                            data: [data.box_plot_data.departures[selectedDay] || []]
-                        }]
-                    },
-                    options: chartOptions
-                }));
+                const todayDepartureCtx = document.getElementById('todayDepartureChart');
+                if (todayDepartureCtx) {
+                    charts.push(new Chart(todayDepartureCtx.getContext('2d'), {
+                        type: 'boxplot',
+                        data: {
+                            labels: [selectedDay],
+                            datasets: [{
+                                label: 'Departures',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: '#ff6384',
+                                outlierColor: 'rgba(255, 99, 132, 0.5)',
+                                borderWidth: 2,
+                                itemRadius: 4,
+                                data: [data.box_plot_data.departures[selectedDay] || []]
+                            }]
+                        },
+                        options: chartOptions
+                    }));
+                }
 
-                const todayArrivalCtx = document.getElementById('todayArrivalChart').getContext('2d');
-                charts.push(new Chart(todayArrivalCtx, {
-                    type: 'boxplot',
-                    data: {
-                        labels: [selectedDay],
-                        datasets: [{
-                            label: 'Arrivals',
-                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                            borderColor: '#4361ee',
-                            outlierColor: 'rgba(67, 97, 238, 0.5)',
-                            borderWidth: 2,
-                            itemRadius: 4,
-                            data: [data.box_plot_data.arrivals[selectedDay] || []]
-                        }]
-                    },
-                    options: chartOptions
-                }));
+                const todayArrivalCtx = document.getElementById('todayArrivalChart');
+                if (todayArrivalCtx) {
+                    charts.push(new Chart(todayArrivalCtx.getContext('2d'), {
+                        type: 'boxplot',
+                        data: {
+                            labels: [selectedDay],
+                            datasets: [{
+                                label: 'Arrivals',
+                                backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                                borderColor: '#4361ee',
+                                outlierColor: 'rgba(67, 97, 238, 0.5)',
+                                borderWidth: 2,
+                                itemRadius: 4,
+                                data: [data.box_plot_data.arrivals[selectedDay] || []]
+                            }]
+                        },
+                        options: chartOptions
+                    }));
+                }
 
                 // Weekly Trend Charts
                 const allLabels = data.line_chart_data.labels;
@@ -407,80 +408,88 @@
                 const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
 
                 if (departureDataset) {
-                    const departureCtx = document.getElementById('departureChart').getContext('2d');
-                    charts.push(new Chart(departureCtx, {
-                        type: 'line',
-                        data: {
-                            labels: dayOrder,
-                            datasets: [{ 
-                                ...departureDataset, 
-                                borderColor: '#ff6384', 
-                                backgroundColor: '#ff6384', 
-                                pointRadius: 4, 
-                                data: dayOrder.map(d => {
-                                    const idx = allLabels.indexOf(d);
-                                    return idx !== -1 ? departureDataset.data[idx] : null;
-                                })
-                            }],
-                        },
-                        options: chartOptions
-                    }));
+                    const departureCtx = document.getElementById('departureChart');
+                    if (departureCtx) {
+                        charts.push(new Chart(departureCtx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: dayOrder,
+                                datasets: [{ 
+                                    ...departureDataset, 
+                                    borderColor: '#ff6384', 
+                                    backgroundColor: '#ff6384', 
+                                    pointRadius: 4, 
+                                    data: dayOrder.map(d => {
+                                        const idx = allLabels.indexOf(d);
+                                        return idx !== -1 ? departureDataset.data[idx] : null;
+                                    })
+                                }],
+                            },
+                            options: chartOptions
+                        }));
+                    }
                 }
 
                 if (arrivalDataset) {
-                    const arrivalCtx = document.getElementById('arrivalChart').getContext('2d');
-                    charts.push(new Chart(arrivalCtx, {
-                        type: 'line',
+                    const arrivalCtx = document.getElementById('arrivalChart');
+                    if (arrivalCtx) {
+                        charts.push(new Chart(arrivalCtx.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: dayOrder,
+                                datasets: [{ 
+                                    ...arrivalDataset, 
+                                    borderColor: '#4361ee', 
+                                    backgroundColor: '#4361ee', 
+                                    pointRadius: 4, 
+                                    data: dayOrder.map(d => {
+                                        const idx = allLabels.indexOf(d);
+                                        return idx !== -1 ? arrivalDataset.data[idx] : null;
+                                    })
+                                }],
+                            },
+                            options: chartOptions
+                        }));
+                    }
+                }
+
+                const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart');
+                if (boxplotArrivalsCtx) {
+                    charts.push(new Chart(boxplotArrivalsCtx.getContext('2d'), {
+                        type: 'boxplot',
                         data: {
                             labels: dayOrder,
-                            datasets: [{ 
-                                ...arrivalDataset, 
-                                borderColor: '#4361ee', 
-                                backgroundColor: '#4361ee', 
-                                pointRadius: 4, 
-                                data: dayOrder.map(d => {
-                                    const idx = allLabels.indexOf(d);
-                                    return idx !== -1 ? arrivalDataset.data[idx] : null;
-                                })
-                            }],
+                            datasets: [{
+                                label: 'Arrivals',
+                                backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                                borderColor: '#4361ee',
+                                borderWidth: 1,
+                                itemRadius: 0,
+                                data: dayOrder.map(day => data.box_plot_data.arrivals[day] || [])
+                            }]
                         },
                         options: chartOptions
                     }));
                 }
 
-                const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart').getContext('2d');
-                charts.push(new Chart(boxplotArrivalsCtx, {
-                    type: 'boxplot',
-                    data: {
-                        labels: dayOrder,
-                        datasets: [{
-                            label: 'Arrivals',
-                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                            borderColor: '#4361ee',
-                            borderWidth: 1,
-                            itemRadius: 0,
-                            data: dayOrder.map(day => data.box_plot_data.arrivals[day])
-                        }]
-                    },
-                    options: chartOptions
-                }));
-
-                const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart').getContext('2d');
-                charts.push(new Chart(boxplotDeparturesCtx, {
-                    type: 'boxplot',
-                    data: {
-                        labels: dayOrder,
-                        datasets: [{
-                            label: 'Departures',
-                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                            borderColor: '#ff6384',
-                            borderWidth: 1,
-                            itemRadius: 0,
-                            data: dayOrder.map(day => data.box_plot_data.departures[day])
-                        }]
-                    },
-                    options: chartOptions
-                }));
+                const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart');
+                if (boxplotDeparturesCtx) {
+                    charts.push(new Chart(boxplotDeparturesCtx.getContext('2d'), {
+                        type: 'boxplot',
+                        data: {
+                            labels: dayOrder,
+                            datasets: [{
+                                label: 'Departures',
+                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                borderColor: '#ff6384',
+                                borderWidth: 1,
+                                itemRadius: 0,
+                                data: dayOrder.map(day => data.box_plot_data.departures[day] || [])
+                            }]
+                        },
+                        options: chartOptions
+                    }));
+                }
             } catch (err) { console.error("Chart failure:", err); }
         }
 
@@ -519,7 +528,6 @@
             } catch (err) { console.error("fetchSummaryData failure:", err); }
         }
 
-        // --- Management Logic ---
         const fetchEntries = async () => {
             const res = await fetch('/api/entries');
             const entries = await res.json();
