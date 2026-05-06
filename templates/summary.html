@@ -306,6 +306,7 @@
             const selectedDay = daySelect.value;
             const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
             const gridColor = isDark ? '#333333' : '#f0f0f0';
+            const outlierColor = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
             const labelColor = '#adb5bd';
 
             const chartOptions = {
@@ -372,7 +373,7 @@
                                 label: 'Departures',
                                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                 borderColor: '#ff6384',
-                                outlierColor: 'rgba(255, 99, 132, 0.5)',
+                                outlierColor: outlierColor,
                                 borderWidth: 2,
                                 itemRadius: 4,
                                 data: [data.box_plot_data.departures[selectedDay] || []]
@@ -392,7 +393,7 @@
                                 label: 'Arrivals',
                                 backgroundColor: 'rgba(67, 97, 238, 0.2)',
                                 borderColor: '#4361ee',
-                                outlierColor: 'rgba(67, 97, 238, 0.5)',
+                                outlierColor: outlierColor,
                                 borderWidth: 2,
                                 itemRadius: 4,
                                 data: [data.box_plot_data.arrivals[selectedDay] || []]
@@ -463,6 +464,7 @@
                                 label: 'Arrivals',
                                 backgroundColor: 'rgba(67, 97, 238, 0.1)',
                                 borderColor: '#4361ee',
+                                outlierColor: outlierColor,
                                 borderWidth: 1,
                                 itemRadius: 0,
                                 data: dayOrder.map(day => data.box_plot_data.arrivals[day] || [])
@@ -482,6 +484,7 @@
                                 label: 'Departures',
                                 backgroundColor: 'rgba(255, 99, 132, 0.1)',
                                 borderColor: '#ff6384',
+                                outlierColor: outlierColor,
                                 borderWidth: 1,
                                 itemRadius: 0,
                                 data: dayOrder.map(day => data.box_plot_data.departures[day] || [])
