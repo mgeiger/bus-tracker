@@ -31,10 +31,6 @@ init_db()
 def summary():
     return render_template('summary.html')
 
-@app.route('/entry')
-def index():
-    return render_template('index.html')
-
 @app.route('/api/submit', methods=['POST'])
 def submit_data():
     data = request.get_json()
