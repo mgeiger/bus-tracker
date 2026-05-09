@@ -59,3 +59,8 @@ The application is containerized and can be run using Docker Compose.
 - **Styling:** Bootstrap 5 is used for layout and components.
 - **Charts:** Chart.js is used for data visualization.
 - **Python Style:** Follow standard PEP 8 guidelines. The project uses `pandas` for data manipulation.
+- **Docker Workflow:** The application runs via Gunicorn in Docker. **CRITICAL:** Always rebuild and restart the container after making changes to templates or Python code to ensure they are applied: `docker compose up --build -d`.
+- **Mobile Responsiveness:** All UI changes must maintain current functionality while improving mobile usability. Key focus areas:
+    - Headers and buttons must stack vertically on small screens.
+    - Tables should use `table-responsive` or adapt to card views to avoid horizontal scrolling.
+    - Interactive elements (buttons, inputs) must remain easily accessible on touch devices.
