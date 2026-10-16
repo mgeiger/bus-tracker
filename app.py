@@ -192,15 +192,24 @@ def get_summary_data():
         return jsonify({"message": "No valid data available after outlier filtering."}), 404
     
     df = pd.concat(filtered_groups)
+    df = df.sort_values('datetime')
 
     # Modern named aggregation for clarity and robustness
     stats_df = df.groupby(['day_of_week', 'type'])['time_in_minutes'].agg(
         avg='mean',
-        minimum='min'
+        minimum='min',
+        p5=lambda x: x.quantile(0.05),
+        p95=lambda x: x.quantile(0.95),
+        jitter=lambda x: x.std() if len(x) > 1 else 0.0,
+        recent_avg=lambda x: x.tail(10).mean()
     ).reset_index()
 
     average_times_dict = {}
     min_times_dict = {}
+    p5_times_dict = {}
+    p95_times_dict = {}
+    jitter_dict = {}
+    recent_avg_dict = {}
 
     for _, row in stats_df.iterrows():
         day = row['day_of_week']
@@ -208,13 +217,25 @@ def get_summary_data():
         
         avg_minutes = row['avg']
         min_minutes = row['minimum']
+        p5_minutes = row['p5']
+        p95_minutes = row['p95']
+        jitter_minutes = row['jitter']
+        recent_avg_minutes = row['recent_avg']
         
         if day not in average_times_dict:
             average_times_dict[day] = {}
             min_times_dict[day] = {}
+            p5_times_dict[day] = {}
+            p95_times_dict[day] = {}
+            jitter_dict[day] = {}
+            recent_avg_dict[day] = {}
         
         average_times_dict[day][entry_type] = minutes_to_12h_format(avg_minutes)
         min_times_dict[day][entry_type] = minutes_to_12h_format(min_minutes)
+        p5_times_dict[day][entry_type] = minutes_to_12h_format(p5_minutes)
+        p95_times_dict[day][entry_type] = minutes_to_12h_format(p95_minutes)
+        jitter_dict[day][entry_type] = round(jitter_minutes, 1) if not pd.isna(jitter_minutes) else 0.0
+        recent_avg_dict[day][entry_type] = minutes_to_12h_format(recent_avg_minutes)
 
     day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     
@@ -228,24 +249,43 @@ def get_summary_data():
         for day in day_order
     ]
     
-    # New code to get raw data for the boxplot
+    # Get raw data chronologically for timelines and date history
     raw_data_by_day = {
         'arrivals': {day: [] for day in day_order},
         'departures': {day: [] for day in day_order}
+    }
+    chronological_data = {
+        'arrivals': [],
+        'departures': []
     }
     
     for _, row in df.iterrows():
         day = row['day_of_week']
         entry_type = row['type']
-        minutes = row['time_in_minutes']
+        minutes = int(row['time_in_minutes'])
+        entry_date = row['date']
         if entry_type == 'arrival' and day in raw_data_by_day['arrivals']:
             raw_data_by_day['arrivals'][day].append(minutes)
+            chronological_data['arrivals'].append({
+                'date': entry_date,
+                'day': day,
+                'minutes': minutes
+            })
         elif entry_type == 'departure' and day in raw_data_by_day['departures']:
             raw_data_by_day['departures'][day].append(minutes)
+            chronological_data['departures'].append({
+                'date': entry_date,
+                'day': day,
+                'minutes': minutes
+            })
 
     return jsonify({
         'average_times': average_times_dict,
         'min_times': min_times_dict,
+        'p5_times': p5_times_dict,
+        'p95_times': p95_times_dict,
+        'jitter': jitter_dict,
+        'recent_avg_times': recent_avg_dict,
         'line_chart_data': {
             'labels': day_order,
             'datasets': [
@@ -267,7 +307,8 @@ def get_summary_data():
                 }
             ]
         },
-        'box_plot_data': raw_data_by_day
+        'box_plot_data': raw_data_by_day,
+        'chronological_data': chronological_data
     })
 
 

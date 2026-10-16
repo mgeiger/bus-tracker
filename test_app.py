@@ -117,13 +117,15 @@ def test_api_crud_workflow(client, mock_db):
 
 def test_api_summary_filtering(client, mock_db):
     # Setup: Add data inside and outside current school year
-    mock_db.execute("INSERT INTO entries (date, time, type) VALUES ('2026-05-05', '08:00', 'arrival')")
+    today_str = pd.Timestamp.now().strftime('%Y-%m-%d')
+    mock_db.execute("INSERT INTO entries (date, time, type) VALUES (?, '08:00', 'arrival')", (today_str,))
     mock_db.execute("INSERT INTO entries (date, time, type) VALUES ('2020-05-05', '08:00', 'arrival')")
     mock_db.commit()
 
     # All filter
     response = client.get('/api/summary-data?filter=all')
     assert response.status_code == 200
+    assert 'chronological_data' in response.get_json()
     
     # Current filter (should exclude 2020)
     response = client.get('/api/summary-data?filter=current')

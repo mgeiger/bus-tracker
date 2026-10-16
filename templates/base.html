@@ -45,15 +45,16 @@
         .navbar {
             background: var(--navbar-bg);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 0;
+            padding: 0.65rem 0;
         }
         .navbar-brand {
             font-weight: 700;
             letter-spacing: -0.5px;
+            font-size: 1.15rem;
         }
         .card {
             background-color: var(--card-bg);
-            border: none;
+            border: 1px solid var(--grid-color);
             border-radius: 12px;
             box-shadow: var(--card-shadow);
             transition: transform 0.2s ease, background-color 0.3s ease;
@@ -62,7 +63,7 @@
             background-color: #4361ee;
             border: none;
             font-weight: 600;
-            padding: 0.6rem 1.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
         }
         .btn-primary:hover {
@@ -90,27 +91,127 @@
         .text-secondary { color: var(--muted-text) !important; }
         .bg-light { background-color: var(--input-bg) !important; }
         .text-dark { color: var(--text-color) !important; }
+
+        /* Premium Mobile Bottom Sheet Modals */
+        @media (max-width: 575.98px) {
+            .modal.fade .modal-dialog {
+                transform: translateY(100%) !important;
+                transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            }
+            .modal.show .modal-dialog {
+                transform: translateY(0) !important;
+            }
+            .modal-dialog {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                display: flex !important;
+                align-items: flex-end !important;
+            }
+            .modal-content {
+                border-radius: 24px 24px 0 0 !important;
+                border: none !important;
+                max-height: 92vh !important;
+                overflow-y: auto !important;
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom, 16px)) !important;
+                box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15) !important;
+            }
+        }
+
+        /* Wednesday Early Dismissal Slim Pill */
+        .early-dismissal-banner {
+            background-color: rgba(255, 159, 64, 0.12) !important;
+            border-left: 3px solid #ff9f40 !important;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 0.82rem;
+        }
+        [data-bs-theme="dark"] .early-dismissal-banner {
+            background-color: rgba(255, 159, 64, 0.08) !important;
+            border-left-color: #ff9f40 !important;
+        }
+
+        /* Timeline Gauges & Range Tracks */
+        .timeline-track {
+            position: relative;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            overflow: visible;
+        }
+        .timeline-whisker {
+            position: absolute;
+            top: 50%;
+            height: 2px;
+            transform: translateY(-50%);
+            background-color: var(--text-color);
+            opacity: 0.35;
+            border-radius: 2px;
+        }
+        .timeline-whisker::before,
+        .timeline-whisker::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            width: 2px;
+            height: 8px;
+            background-color: var(--text-color);
+        }
+        .timeline-whisker::before { left: 0; }
+        .timeline-whisker::after { right: 0; }
+
+        .timeline-box-morning {
+            background-color: rgba(67, 97, 238, 0.22);
+            border: 1.5px solid #4361ee;
+        }
+        .timeline-box-afternoon {
+            background-color: rgba(255, 99, 132, 0.22);
+            border: 1.5px solid #ff6384;
+        }
+        .timeline-dot-morning {
+            background-color: #4361ee;
+        }
+        .timeline-dot-afternoon {
+            background-color: #ff6384;
+        }
+        .text-morning {
+            color: #4361ee !important;
+        }
+        [data-bs-theme="dark"] .text-morning {
+            color: #6ea8fe !important;
+        }
+        .text-afternoon {
+            color: #e63956 !important;
+        }
+        [data-bs-theme="dark"] .text-afternoon {
+            color: #ff859d !important;
+        }
+        .today-row-highlight {
+            background-color: rgba(67, 97, 238, 0.09);
+            border: 1px solid rgba(67, 97, 238, 0.3);
+            border-radius: 8px;
+        }
+        .today-row-highlight .timeline-track {
+            background-color: transparent;
+        }
     </style>
     {% block head_extra %}{% endblock %}
 </head>
 <body>
     <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-sm navbar-dark mb-4">
-            <div class="container-fluid container">
-                <a class="navbar-brand" href="/">
+        <nav class="navbar navbar-dark mb-3">
+            <div class="container d-flex justify-content-between align-items-center">
+                <a class="navbar-brand mb-0" href="/">
                     <span class="text-primary-emphasis">🚌</span> BusTracker
                 </a>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                        <li class="nav-item me-3">
-                            <button class="btn btn-link nav-link p-0" id="themeToggle" title="Toggle Dark/Light Mode">
-                                <span id="themeIcon">🌓</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <span class="nav-link text-light-50 small">Live Monitoring</span>
-                        </li>
-                    </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white-50 small d-none d-sm-inline">Live Monitoring</span>
+                    <button class="btn btn-sm btn-outline-light border-0 px-2 py-1" id="themeToggle" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode">
+                        <span id="themeIcon">🌓</span>
+                    </button>
                 </div>
             </div>
         </nav>

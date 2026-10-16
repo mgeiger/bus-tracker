@@ -4,31 +4,29 @@
 
 {% block head_extra %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.4/build/index.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
-    <div class="row align-items-end mb-4 gy-3">
-        <div class="col-12 col-lg-6">
-            <h1 class="h2 fw-bold mb-1">Analytics Dashboard</h1>
-            <p class="text-muted mb-0">Overview of bus performance and timing distributions</p>
+    <!-- Compact Mobile-First Header & Action Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-3">
+        <div>
+            <h1 class="h4 fw-bold mb-0">Analytics Dashboard</h1>
+            <p class="text-muted small mb-0 d-none d-sm-block">Bus performance and timing distributions</p>
         </div>
-        <div class="col-12 col-lg-6">
-            <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-2">
-                <div class="btn-group flex-fill flex-lg-grow-0" role="group" aria-label="School Year Filter">
-                    <input type="radio" class="btn-check" name="filter" id="filterCurrent" value="current" checked autocomplete="off">
-                    <label class="btn btn-outline-secondary px-3" for="filterCurrent">Current Year</label>
-                    
-                    <input type="radio" class="btn-check" name="filter" id="filterAll" value="all" autocomplete="off">
-                    <label class="btn btn-outline-secondary px-3" for="filterAll">All Years</label>
-                </div>
-                <button type="button" class="btn btn-outline-primary shadow-sm flex-fill flex-lg-grow-0 px-3" data-bs-toggle="modal" data-bs-target="#manageDataModal" id="btnManage">
-                    Manage Data
-                </button>
-                <button type="button" class="btn btn-primary shadow-sm flex-fill flex-lg-grow-0" data-bs-toggle="modal" data-bs-target="#dataEntryModal">
-                    <span class="me-1">+</span> Add New Entry
-                </button>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="btn-group btn-group-sm flex-grow-1 flex-md-grow-0" role="group" aria-label="School Year Filter">
+                <input type="radio" class="btn-check" name="filter" id="filterCurrent" value="current" checked autocomplete="off">
+                <label class="btn btn-outline-secondary px-2 px-sm-3 py-1" for="filterCurrent">Current Year</label>
+                
+                <input type="radio" class="btn-check" name="filter" id="filterAll" value="all" autocomplete="off">
+                <label class="btn btn-outline-secondary px-2 px-sm-3 py-1" for="filterAll">All Years</label>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 flex-md-grow-0 px-3 py-1" data-bs-toggle="modal" data-bs-target="#manageDataModal" id="btnManage">
+                Manage
+            </button>
+            <button type="button" class="btn btn-sm btn-primary flex-grow-1 flex-md-grow-0 px-3 py-1" data-bs-toggle="modal" data-bs-target="#dataEntryModal">
+                + Add Entry
+            </button>
         </div>
     </div>
 
@@ -36,7 +34,10 @@
     <div class="modal fade" id="dataEntryModal" tabindex="-1" aria-labelledby="dataEntryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content shadow-lg border-0 rounded-4">
-                <div class="modal-header border-bottom-0 pt-4 px-4">
+                <div class="d-sm-none w-100 d-flex justify-content-center pt-3">
+                    <div style="width: 40px; height: 5px; background-color: var(--grid-color); border-radius: 3px;"></div>
+                </div>
+                <div class="modal-header border-bottom-0 pt-3 pt-sm-4 px-4">
                     <h5 class="modal-title fw-bold" id="dataEntryModalLabel">New Bus Entry</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -57,8 +58,8 @@
                         <div class="mb-3">
                             <label for="type" class="form-label text-muted small fw-bold text-uppercase">Entry Type</label>
                             <select id="type" class="form-select form-control-lg bg-light border-0" required>
-                                <option value="departure">Departure</option>
-                                <option value="arrival">Arrival</option>
+                                <option value="departure">Departure (Morning Pick Up)</option>
+                                <option value="arrival">Arrival (Afternoon Drop Off)</option>
                             </select>
                         </div>
                         <div id="modalMessage" class="mt-3"></div>
@@ -76,12 +77,15 @@
     <div class="modal fade" id="manageDataModal" tabindex="-1" aria-labelledby="manageDataModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content shadow-lg border-0 rounded-4">
-                <div class="modal-header border-bottom-0 pt-4 px-4">
+                <div class="d-sm-none w-100 d-flex justify-content-center pt-3">
+                    <div style="width: 40px; height: 5px; background-color: var(--grid-color); border-radius: 3px;"></div>
+                </div>
+                <div class="modal-header border-bottom-0 pt-3 pt-sm-4 px-4">
                     <h5 class="modal-title fw-bold" id="manageDataModalLabel">Manage Bus Data</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body px-4">
-                    <div id="managePinSection" class="mb-4 d-none">
+                <div class="modal-body px-3 px-sm-4">
+                    <div id="managePinSection" class="mb-3 d-none">
                         <label class="form-label text-muted small fw-bold text-uppercase">Verification Required</label>
                         <div class="input-group shadow-sm rounded-3 overflow-hidden">
                             <input type="password" id="managePin" class="form-control bg-light border-0" placeholder="Enter 6-digit PIN">
@@ -90,7 +94,7 @@
                     </div>
                     <div id="manageContent" class="opacity-50" style="pointer-events: none;">
                         <div class="table-responsive" style="max-height: 400px;">
-                            <table class="table table-hover align-middle" id="manageTable">
+                            <table class="table table-hover align-middle mb-0" id="manageTable">
                                 <thead class="text-muted small fw-bold text-uppercase">
                                     <tr>
                                         <th>Date</th>
@@ -110,107 +114,143 @@
 
     <div id="alertContainer"></div>
 
-    <div class="card p-0 mb-4 overflow-hidden border-0 shadow-sm">
-        <div class="card-header border-bottom py-3 px-4" style="background-color: var(--card-header-bg);">
-            <h2 class="h5 fw-semibold mb-0">Weekly Summary</h2>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0" id="averageTimesTable">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="px-4 py-3 border-0">Day of Week</th>
-                            <th scope="col" class="py-3 text-secondary border-0 text-center">Avg. Departure</th>
-                            <th scope="col" class="py-3 text-secondary border-0 text-center">Min. Departure</th>
-                            <th scope="col" class="py-3 text-secondary border-0 text-center">Avg. Arrival</th>
-                            <th scope="col" class="py-3 text-secondary border-0 text-center">Min. Arrival</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+    <!-- Section 1: Daily Focus Hero Gauges (Style C) -->
+    <div class="card p-3 p-md-4 mb-3 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="h6 fw-bold mb-0 text-uppercase text-secondary" style="letter-spacing: 0.04em;">Daily Window Focus</h2>
+                <span id="wednesdayHeroBadge" class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle d-none">
+                    📅 Early Dismissal
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="daySelect" class="small text-secondary fw-medium mb-0">Day:</label>
+                <select id="daySelect" class="form-select form-select-sm border-0 bg-light fw-semibold" style="width: 135px;">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                </select>
             </div>
         </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card p-4 border-0 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="h4 fw-bold mb-0">Daily Distribution Focus</h2>
-                        <span class="text-muted small">Detailed box-plot analysis for the selected day</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <select id="daySelect" class="form-select border-0 bg-light fw-medium" style="width: 160px; height: 45px;">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                        </select>
-                        <div class="vr mx-2 h-75"></div>
-                        <div class="form-check form-switch mt-1">
-                            <input class="form-check-input" type="checkbox" id="showWeeklyToggle" style="cursor: pointer;">
-                            <label class="form-check-label fw-medium text-secondary" for="showWeeklyToggle" style="cursor: pointer;">Extended Info</label>
-                        </div>
-                    </div>
+
+        <div class="row g-3">
+            <!-- Morning Pick Up Hero Gauge -->
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div id="heroMorningContainer"></div>
                 </div>
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <div class="p-4 bg-light rounded-4">
-                            <h6 class="text-uppercase text-muted fw-bold small text-center mb-4 ls-wide">Departures</h6>
-                            <canvas id="todayDepartureChart" style="max-height: 300px;"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <div class="p-4 bg-light rounded-4">
-                            <h6 class="text-uppercase text-muted fw-bold small text-center mb-4 ls-wide">Arrivals</h6>
-                            <canvas id="todayArrivalChart" style="max-height: 300px;"></canvas>
-                        </div>
-                    </div>
+            </div>
+            <!-- Afternoon Drop Off Hero Gauge -->
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div id="heroAfternoonContainer"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="weeklyChartsSection" style="display: none;">
-        <div class="row">
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4 border-0 shadow-sm">
-                    <h2 class="h5 fw-bold mb-4">Average Departure Trend</h2>
-                    <div class="card-body p-0">
-                        <canvas id="departureChart" style="max-height: 400px;"></canvas>
-                    </div>
-                </div>
+    <!-- Section 2: Weekly Schedule & Distribution (Style A / Style B Toggle) -->
+    <div class="card p-3 p-md-4 mb-3 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+                <h2 class="h6 fw-bold mb-0 text-uppercase text-secondary" style="letter-spacing: 0.04em;">Weekly Schedule (Mon–Fri)</h2>
             </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Timeline Style Toggle">
+                <input type="radio" class="btn-check" name="weeklyStyle" id="styleTrack" value="A" checked autocomplete="off">
+                <label class="btn btn-outline-primary px-3 py-1" for="styleTrack">Range Track</label>
 
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4 border-0 shadow-sm">
-                    <h2 class="h5 fw-bold mb-4">Average Arrival Trend</h2>
-                    <div class="card-body p-0">
-                        <canvas id="arrivalChart" style="max-height: 400px;"></canvas>
-                    </div>
-                </div>
+                <input type="radio" class="btn-check" name="weeklyStyle" id="styleDots" value="B" autocomplete="off">
+                <label class="btn btn-outline-primary px-3 py-1" for="styleDots">Dot Strip</label>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4 border-0 shadow-sm">
-                    <h2 class="h5 fw-bold mb-4">Weekly Departure Distribution</h2>
-                    <div class="card-body p-0">
-                        <canvas id="boxplotDeparturesChart" style="max-height: 400px;"></canvas>
+        <!-- Compact Legend + Slim Wednesday Note -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-3 border-bottom" style="border-color: var(--grid-color) !important; font-size: 0.76rem;">
+            <div class="d-flex flex-wrap align-items-center gap-3 text-secondary">
+                <span class="d-inline-flex align-items-center gap-1">
+                    <span style="width: 12px; height: 2px; background: currentColor; opacity: 0.5; display: inline-block;"></span> Min–Max
+                </span>
+                <span class="d-inline-flex align-items-center gap-1">
+                    <span style="width: 14px; height: 9px; background: rgba(67,97,238,0.25); border: 1px solid #4361ee; border-radius: 2px; display: inline-block;"></span> 5th–95th Safe Window
+                </span>
+                <span class="d-inline-flex align-items-center gap-1">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-color); display: inline-block;"></span> Average
+                </span>
+            </div>
+            <div class="text-secondary" id="wedScaleNote">
+                <span class="me-1">📅</span><strong>Wed Early Dismissal:</strong> shown on its own afternoon sub-scale
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- Weekly Morning Pick Up -->
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border h-100" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <span class="fw-bold small text-uppercase text-morning">Morning Pick Up</span>
+                        <span class="text-secondary" style="font-size: 0.72rem;">5th–95th %ile</span>
+                    </div>
+                    <div id="weeklyMorningContainer"></div>
+                </div>
+            </div>
+
+            <!-- Weekly Afternoon Drop Off -->
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border h-100" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <span class="fw-bold small text-uppercase text-afternoon">Afternoon Drop Off</span>
+                        <span class="text-secondary" style="font-size: 0.72rem;">5th–95th %ile</span>
+                    </div>
+                    <div id="weeklyAfternoonContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Trend & Drift Analysis (Weekly Curve vs. Date History Toggle) -->
+    <div class="card p-3 p-md-4 mb-4 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+                <h2 class="h6 fw-bold mb-0 text-uppercase text-secondary" style="letter-spacing: 0.04em;">Trend &amp; Drift Analysis</h2>
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Trend Chart Mode Toggle">
+                <input type="radio" class="btn-check" name="trendMode" id="trendModeWeekly" value="weekly" checked autocomplete="off">
+                <label class="btn btn-outline-primary px-3 py-1" for="trendModeWeekly">Weekly Curve</label>
+
+                <input type="radio" class="btn-check" name="trendMode" id="trendModeHistory" value="history" autocomplete="off">
+                <label class="btn btn-outline-primary px-3 py-1" for="trendModeHistory">Date History</label>
+            </div>
+        </div>
+
+        <!-- Dynamic Legend for Trend Section -->
+        <div id="trendLegendBar" class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-3 border-bottom" style="border-color: var(--grid-color) !important; font-size: 0.76rem;">
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border h-100" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold small text-uppercase text-morning" id="morningTrendTitle">Morning Pick Up Curve</span>
+                        <span class="badge bg-light text-secondary border" id="morningDriftBadge" style="font-size: 0.7rem;"></span>
+                    </div>
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="departureChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card p-4 border-0 shadow-sm">
-                    <h2 class="h5 fw-bold mb-4">Weekly Arrival Distribution</h2>
-                    <div class="card-body p-0">
-                        <canvas id="boxplotArrivalsChart" style="max-height: 400px;"></canvas>
+            <div class="col-12 col-lg-6">
+                <div class="p-3 rounded-3 border h-100" style="background-color: var(--bg-color); border-color: var(--grid-color) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold small text-uppercase text-afternoon" id="afternoonTrendTitle">Afternoon Drop Off Curve</span>
+                        <span class="badge bg-light text-secondary border" id="afternoonDriftBadge" style="font-size: 0.7rem;"></span>
                     </div>
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="arrivalChart"></canvas>
+                    </div>
+                    <div id="afternoonWedNormalizeNote" class="text-secondary mt-2" style="font-size: 0.71rem;"></div>
                 </div>
             </div>
         </div>
@@ -234,8 +274,11 @@
         let charts = [];
         let globalData = null;
         let pinRequired = false;
+        let currentWeeklyStyle = 'A';
+        let currentTrendMode = 'weekly';
         const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        
+        const shortDay = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri' };
+
         // --- PIN Caching & Auth Logic ---
         const getCachedPin = () => {
             const cachedStr = localStorage.getItem('auth_pin');
@@ -251,7 +294,7 @@
         };
 
         const setCachedPin = (pin) => {
-            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000); // 30 days
+            const expiry = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
             localStorage.setItem('auth_pin', JSON.stringify({ pin, expiry }));
         };
 
@@ -277,272 +320,708 @@
             updateAuthUI();
         };
 
-        // --- Chart Themes ---
         window.addEventListener('themeChanged', () => {
-            if (globalData) renderCharts(globalData);
+            if (globalData) renderDashboard(globalData);
         });
 
-        // --- Core Functions ---
         const todayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
         const daySelect = document.getElementById('daySelect');
-        if (dayOrder.includes(todayName)) {
-            daySelect.value = todayName;
-        } else {
-            daySelect.value = 'Monday';
-        }
+        daySelect.value = dayOrder.includes(todayName) ? todayName : 'Monday';
 
         function destroyCharts() {
             charts.forEach(chart => chart.destroy());
             charts = [];
         }
 
-        function formatMinutesToTime(minutes) {
-            if (minutes === null || isNaN(minutes)) return '';
-            const hours = Math.floor(minutes / 60);
-            const mins = Math.round(minutes % 60);
+        function formatMinutesToTime(minutes, includeAmPm = true) {
+            if (minutes === null || minutes === undefined || isNaN(minutes)) return '—';
+            const rounded = Math.round(minutes);
+            const hours = Math.floor(rounded / 60);
+            const mins = rounded % 60;
             const ampm = hours >= 12 ? 'PM' : 'AM';
             const displayHours = hours % 12 || 12;
             const displayMins = mins.toString().padStart(2, '0');
-            return `${displayHours}:${displayMins} ${ampm}`;
+            return includeAmPm ? `${displayHours}:${displayMins} ${ampm}` : `${displayHours}:${displayMins}`;
         }
 
-        function renderCharts(data) {
-            destroyCharts();
-            const selectedDay = daySelect.value;
-            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-            const gridColor = isDark ? '#333333' : '#f0f0f0';
-            const outlierColor = isDark ? '#ffffff' : '#444444';
-            const labelColor = '#adb5bd';
+        function quantile(sorted, q) {
+            if (!sorted || sorted.length === 0) return null;
+            const pos = (sorted.length - 1) * q;
+            const base = Math.floor(pos);
+            const rest = pos - base;
+            if (sorted[base + 1] !== undefined) {
+                return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+            }
+            return sorted[base];
+        }
 
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grace: '5%',
-                        grid: { color: gridColor },
-                        ticks: { 
-                            callback: (v) => formatMinutesToTime(v),
-                            color: labelColor,
-                            font: { size: 11 }
+        function computeStats(rawMinutes) {
+            if (!rawMinutes || rawMinutes.length === 0) return null;
+            const sorted = [...rawMinutes].sort((a, b) => a - b);
+            const sum = sorted.reduce((acc, v) => acc + v, 0);
+            return {
+                min: sorted[0],
+                p5: quantile(sorted, 0.05),
+                avg: sum / sorted.length,
+                p95: quantile(sorted, 0.95),
+                max: sorted[sorted.length - 1],
+                dots: sorted
+            };
+        }
+
+        function pct(val, min, max) {
+            if (max <= min) return 50;
+            return Math.max(2, Math.min(98, ((val - min) / (max - min)) * 100));
+        }
+
+        function computeScale(daysDataMap, fallbackMin, fallbackMax, excludeDay = null) {
+            let allVals = [];
+            for (const d of dayOrder) {
+                if (d === excludeDay) continue;
+                const arr = daysDataMap[d] || [];
+                allVals.push(...arr);
+            }
+            if (allVals.length === 0) return { min: fallbackMin, max: fallbackMax };
+            const minVal = Math.floor((Math.min(...allVals) - 3) / 5) * 5;
+            const maxVal = Math.ceil((Math.max(...allVals) + 3) / 5) * 5;
+            return { min: minVal, max: Math.max(minVal + 15, maxVal) };
+        }
+
+        function buildTicks(minScale, maxScale, count = 5) {
+            const ticks = [];
+            const step = (maxScale - minScale) / (count - 1);
+            for (let i = 0; i < count; i++) {
+                const val = Math.round(minScale + i * step);
+                ticks.push(formatMinutesToTime(val, i === 0 || i === count - 1));
+            }
+            return ticks;
+        }
+
+        // Render Style C: Selected-Day Hero Timeline Gauge
+        function renderHeroGauge(containerId, title, isMorning, rawMinutes, jitterVal, scaleMin, scaleMax, isWedEarly = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const stats = computeStats(rawMinutes);
+            const accentText = isMorning ? 'text-morning' : 'text-afternoon';
+            const boxClass = isMorning ? 'timeline-box-morning' : 'timeline-box-afternoon';
+
+            if (!stats) {
+                container.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small fw-bold text-uppercase ${accentText}">${title}</span>
+                    </div>
+                    <div class="text-secondary small py-3 text-center">No entries recorded for this day.</div>
+                `;
+                return;
+            }
+
+            const leftW = pct(stats.min, scaleMin, scaleMax);
+            const widthW = Math.max(1, pct(stats.max, scaleMin, scaleMax) - leftW);
+            const leftBox = pct(stats.p5, scaleMin, scaleMax);
+            const widthBox = Math.max(4, pct(stats.p95, scaleMin, scaleMax) - leftBox);
+            const avgPos = pct(stats.avg, scaleMin, scaleMax);
+
+            container.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <div class="small fw-bold text-uppercase ${accentText}">
+                            ${title} ${isWedEarly ? '<span class="badge bg-warning-subtle text-warning-emphasis ms-1" style="font-size:0.65rem;">Early Dismissal</span>' : ''}
+                        </div>
+                        <div class="h5 fw-bold mb-0 mt-1">
+                            Be ready by <span class="${accentText}">${formatMinutesToTime(stats.p5)}</span>
+                        </div>
+                    </div>
+                    <div class="text-end" style="font-size: 0.76rem; line-height: 1.35;">
+                        <div class="text-secondary">Typical Avg: <strong class="text-dark">${formatMinutesToTime(stats.avg)}</strong></div>
+                        <div class="text-secondary">95% Latest: <strong class="text-dark">${formatMinutesToTime(stats.p95)}</strong></div>
+                        <div class="text-secondary">Jitter: <strong class="text-dark">±${jitterVal ?? 0}m</strong></div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Gauge Track -->
+                <div class="timeline-track my-3" style="height: 36px;">
+                    <div class="timeline-whisker" style="left: ${leftW}%; width: ${widthW}%;"></div>
+                    <div class="position-absolute rounded-2 ${boxClass} d-flex align-items-center justify-content-between px-1"
+                         style="top: 6px; height: 24px; left: ${leftBox}%; width: ${widthBox}%; font-size: 0.7rem; font-weight: 600;">
+                        <span>${formatMinutesToTime(stats.p5, false)}</span>
+                        ${widthBox > 18 ? `<span>${formatMinutesToTime(stats.p95, false)}</span>` : ''}
+                    </div>
+                    <div class="position-absolute d-flex flex-column align-items-center"
+                         style="top: -10px; left: ${avgPos}%; transform: translateX(-50%); z-index: 2;">
+                        <span class="badge bg-dark text-white px-1.5 py-0.5" style="font-size: 0.66rem;">Avg ${formatMinutesToTime(stats.avg, false)}</span>
+                        <div style="width: 2px; height: 32px; background-color: var(--text-color);"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between text-secondary" style="font-size: 0.74rem;">
+                    <span>Earliest: <strong>${formatMinutesToTime(stats.min)}</strong></span>
+                    <span>90% Window: <strong>${formatMinutesToTime(stats.p5, false)}–${formatMinutesToTime(stats.p95)}</strong></span>
+                    <span>Latest: <strong>${formatMinutesToTime(stats.max)}</strong></span>
+                </div>
+            `;
+        }
+
+        // Render Weekly Section (Style A: Range Track OR Style B: Card + Dot Strip)
+        function renderWeeklyTimeline(containerId, isMorning, daysDataMap, mainScale, wedScale = null) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const boxClass = isMorning ? 'timeline-box-morning' : 'timeline-box-afternoon';
+            const dotClass = isMorning ? 'timeline-dot-morning' : 'timeline-dot-afternoon';
+            const accentText = isMorning ? 'text-morning' : 'text-afternoon';
+            const selectedDay = daySelect.value;
+
+            let html = `<div class="d-flex flex-column gap-2">`;
+
+            for (const day of dayOrder) {
+                const raw = daysDataMap[day] || [];
+                const stats = computeStats(raw);
+                const isWedEarly = !isMorning && day === 'Wednesday' && wedScale;
+                const sMin = isWedEarly ? wedScale.min : mainScale.min;
+                const sMax = isWedEarly ? wedScale.max : mainScale.max;
+                const isSelected = (day === selectedDay);
+
+                if (!stats) {
+                    html += `
+                        <div class="d-flex align-items-center gap-2 py-1 px-2 rounded ${isSelected ? 'today-row-highlight' : ''}"
+                             style="cursor: pointer;" onclick="selectDay('${day}')">
+                            <div class="fw-bold small" style="width: 36px;">${shortDay[day]}</div>
+                            <div class="flex-grow-1 text-secondary small">No data</div>
+                        </div>
+                    `;
+                    continue;
+                }
+
+                const leftW = pct(stats.min, sMin, sMax);
+                const widthW = Math.max(1, pct(stats.max, sMin, sMax) - leftW);
+                const leftBox = pct(stats.p5, sMin, sMax);
+                const widthBox = Math.max(3, pct(stats.p95, sMin, sMax) - leftBox);
+                const avgPos = pct(stats.avg, sMin, sMax);
+
+                if (currentWeeklyStyle === 'A') {
+                    // Style A: Compact Horizontal Range Track
+                    html += `
+                        <div class="d-flex align-items-center gap-2 py-1 px-2 rounded ${isSelected ? 'today-row-highlight' : ''}"
+                             style="cursor: pointer; ${isSelected ? '' : 'border: 1px solid transparent;'}" onclick="selectDay('${day}')" title="Click to focus ${day}">
+                            <div class="fw-bold" style="width: 36px; font-size: 0.78rem;">
+                                ${shortDay[day]}
+                            </div>
+                            <div class="timeline-track flex-grow-1" style="height: 26px;">
+                                ${isWedEarly ? `<span class="position-absolute start-0 top-0 ms-1 badge bg-warning-subtle text-warning-emphasis" style="font-size: 0.6rem; z-index: 3; margin-top: 4px;">Early (${formatMinutesToTime(sMin, false)}–${formatMinutesToTime(sMax, false)})</span>` : ''}
+                                <div class="timeline-whisker" style="left: ${leftW}%; width: ${widthW}%;"></div>
+                                <div class="position-absolute rounded-1 ${boxClass}"
+                                     style="top: 5px; height: 16px; left: ${leftBox}%; width: ${widthBox}%;"></div>
+                                <div class="position-absolute rounded-circle ${dotClass} border border-white"
+                                     style="width: 9px; height: 9px; top: 8.5px; left: calc(${avgPos}% - 4.5px); z-index: 2;"
+                                     title="Avg: ${formatMinutesToTime(stats.avg)}"></div>
+                            </div>
+                            <div class="text-end fw-semibold font-monospace" style="width: 84px; font-size: 0.75rem;">
+                                ${formatMinutesToTime(stats.p5, false)}–${formatMinutesToTime(stats.p95, false)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Style B: Unified Card + Raw Dot Strip
+                    const dotsHtml = stats.dots.map(pt => {
+                        const ptPos = pct(pt, sMin, sMax);
+                        return `<div class="position-absolute rounded-circle ${dotClass}" style="width: 6px; height: 6px; top: 7px; left: calc(${ptPos}% - 3px); opacity: 0.55;"></div>`;
+                    }).join('');
+
+                    html += `
+                        <div class="py-2 px-3 rounded border ${isSelected ? 'today-row-highlight' : ''}"
+                             style="${isSelected ? '' : 'border-color: var(--grid-color) !important;'} cursor: pointer;" onclick="selectDay('${day}')">
+                            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.76rem;">
+                                <span class="fw-bold">
+                                    ${shortDay[day]}
+                                    ${isWedEarly ? '<span class="badge bg-warning-subtle text-warning-emphasis ms-1" style="font-size:0.62rem;">Early Dismissal</span>' : ''}
+                                </span>
+                                <span class="text-secondary">
+                                    Window: <strong class="${accentText}">${formatMinutesToTime(stats.p5, false)}–${formatMinutesToTime(stats.p95)}</strong>
+                                    · Avg: <strong class="text-dark">${formatMinutesToTime(stats.avg, false)}</strong>
+                                </span>
+                            </div>
+                            <div class="timeline-track" style="height: 20px;">
+                                <div class="position-absolute rounded-1 ${boxClass}"
+                                     style="top: 3px; height: 14px; left: ${leftBox}%; width: ${widthBox}%;"></div>
+                                ${dotsHtml}
+                                <div class="position-absolute rounded-circle bg-dark border border-white"
+                                     style="width: 9px; height: 9px; top: 5.5px; left: calc(${avgPos}% - 4.5px); z-index: 2;"
+                                     title="Avg: ${formatMinutesToTime(stats.avg)}"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Bottom Axis Ticks
+            const ticks = buildTicks(mainScale.min, mainScale.max, 5);
+            html += `
+                <div class="d-flex align-items-center gap-2 pt-1 px-2 text-secondary" style="font-size: 0.68rem;">
+                    ${currentWeeklyStyle === 'A' ? '<div style="width: 36px;"></div>' : ''}
+                    <div class="flex-grow-1 d-flex justify-content-between px-1">
+                        ${ticks.map(t => `<span>${t}</span>`).join('')}
+                    </div>
+                    ${currentWeeklyStyle === 'A' ? '<div style="width: 84px;" class="text-end">Window</div>' : ''}
+                </div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        window.selectDay = (day) => {
+            daySelect.value = day;
+            if (globalData) renderDashboard(globalData);
+        };
+
+        function renderTrendCharts(data) {
+            destroyCharts();
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+            const labelColor = '#adb5bd';
+            const legendBar = document.getElementById('trendLegendBar');
+            const wedNormalizeNote = document.getElementById('afternoonWedNormalizeNote');
+            const morningTitle = document.getElementById('morningTrendTitle');
+            const afternoonTitle = document.getElementById('afternoonTrendTitle');
+            const morningBadge = document.getElementById('morningDriftBadge');
+            const afternoonBadge = document.getElementById('afternoonDriftBadge');
+
+            const departuresByDay = data.box_plot_data?.departures || {};
+            const arrivalsByDay = data.box_plot_data?.arrivals || {};
+
+            // Calculate Wednesday offset so Afternoon curves stay zoomed in without an 80-minute V-dip
+            const regularArr = ['Monday', 'Tuesday', 'Thursday', 'Friday'].flatMap(d => arrivalsByDay[d] || []);
+            const wedArr = arrivalsByDay['Wednesday'] || [];
+            const regularMean = regularArr.length ? regularArr.reduce((a, b) => a + b, 0) / regularArr.length : 960;
+            const wedMean = wedArr.length ? wedArr.reduce((a, b) => a + b, 0) / wedArr.length : 880;
+            const wedOffset = (wedArr.length > 0 && (regularMean - wedMean) > 25) ? (regularMean - wedMean) : 0;
+
+            if (currentTrendMode === 'weekly') {
+                if (morningTitle) morningTitle.innerText = 'Morning Pick Up Curve (Mon–Fri)';
+                if (afternoonTitle) afternoonTitle.innerText = 'Afternoon Drop Off Curve (Mon–Fri)';
+                if (legendBar) {
+                    legendBar.innerHTML = `
+                        <div class="d-flex flex-wrap align-items-center gap-3 text-secondary">
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 14px; height: 3px; background: #4361ee; border-radius: 2px; display: inline-block;"></span> Overall Avg
+                            </span>
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 14px; height: 0; border-bottom: 2px dashed #10b981; display: inline-block;"></span> Last 10 Trips
+                            </span>
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 14px; height: 9px; background: rgba(67,97,238,0.18); border-radius: 2px; display: inline-block;"></span> 5th–95th Confidence Band
+                            </span>
+                        </div>
+                        <div class="text-secondary">
+                            Compare recent 10-trip drift against your all-time daily window
+                        </div>
+                    `;
+                }
+
+                const buildWeeklySeries = (byDayMap, isAfternoon) => {
+                    const avgData = [];
+                    const recentData = [];
+                    const p5Data = [];
+                    const p95Data = [];
+                    const rawTooltipMap = {};
+
+                    dayOrder.forEach((day, idx) => {
+                        const raw = byDayMap[day] || [];
+                        if (raw.length === 0) {
+                            avgData.push(null);
+                            recentData.push(null);
+                            p5Data.push(null);
+                            p95Data.push(null);
+                            return;
                         }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: labelColor, font: { size: 11, weight: '600' } }
+                        const sorted = [...raw].sort((a, b) => a - b);
+                        const avg = raw.reduce((a, b) => a + b, 0) / raw.length;
+                        const recentSlice = raw.slice(-10);
+                        const recent = recentSlice.reduce((a, b) => a + b, 0) / recentSlice.length;
+                        const p5 = quantile(sorted, 0.05);
+                        const p95 = quantile(sorted, 0.95);
+                        const shift = (isAfternoon && day === 'Wednesday') ? wedOffset : 0;
+
+                        avgData.push(avg + shift);
+                        recentData.push(recent + shift);
+                        p5Data.push(p5 + shift);
+                        p95Data.push(p95 + shift);
+                        rawTooltipMap[idx] = { day, avg, recent, p5, p95, shifted: shift > 0 };
+                    });
+
+                    // Compute overall recent drift vs all-time
+                    const allRaw = dayOrder.flatMap(d => byDayMap[d] || []);
+                    const allRecent = dayOrder.flatMap(d => (byDayMap[d] || []).slice(-10));
+                    let driftDiff = 0;
+                    if (allRaw.length && allRecent.length) {
+                        driftDiff = (allRecent.reduce((a, b) => a + b, 0) / allRecent.length) - (allRaw.reduce((a, b) => a + b, 0) / allRaw.length);
                     }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(26, 28, 35, 0.9)',
-                        padding: 12,
-                        cornerRadius: 8,
-                        titleFont: { size: 13, weight: 'bold' },
-                        bodyFont: { size: 12 },
-                        callbacks: {
-                            label: (context) => {
-                                const isBoxplot = context.dataset.type === 'boxplot' || 
-                                                 (context.chart && context.chart.config && context.chart.config.type === 'boxplot');
-                                
-                                if (isBoxplot) {
-                                    const s = context.parsed;
-                                    if (!s || typeof s !== 'object' || s.median === undefined) return 'No data';
-                                    return [
-                                        `Max: ${formatMinutesToTime(s.max)}`,
-                                        `Q3: ${formatMinutesToTime(s.q3)}`,
-                                        `Median: ${formatMinutesToTime(s.median)}`,
-                                        `Q1: ${formatMinutesToTime(s.q1)}`,
-                                        `Min: ${formatMinutesToTime(s.min)}`
-                                    ];
+                    return { avgData, recentData, p5Data, p95Data, rawTooltipMap, driftDiff };
+                };
+
+                const mSeries = buildWeeklySeries(departuresByDay, false);
+                const aSeries = buildWeeklySeries(arrivalsByDay, true);
+
+                const formatDrift = (diff) => {
+                    const r = Math.round(diff * 10) / 10;
+                    if (Math.abs(r) < 0.2) return 'Last 10: On average';
+                    return r > 0 ? `Last 10: +${r}m later` : `Last 10: ${r}m earlier`;
+                };
+                if (morningBadge) morningBadge.innerText = formatDrift(mSeries.driftDiff);
+                if (afternoonBadge) afternoonBadge.innerText = formatDrift(aSeries.driftDiff);
+                if (wedNormalizeNote) {
+                    wedNormalizeNote.innerHTML = wedOffset > 0
+                        ? `Amber marker (<strong>Wed</strong>) is normalized (+${Math.round(wedOffset)}m) so the curve stays zoomed in. True Wed avg: <strong>${formatMinutesToTime(wedMean)}</strong>.`
+                        : '';
+                }
+
+                const createWeeklyChart = (canvasId, series, mainColor, bandColor, isAfternoon) => {
+                    const ctx = document.getElementById(canvasId);
+                    if (!ctx) return;
+                    charts.push(new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: dayOrder.map(d => shortDay[d]),
+                            datasets: [
+                                {
+                                    label: 'Overall Avg',
+                                    data: series.avgData,
+                                    borderColor: mainColor,
+                                    backgroundColor: mainColor,
+                                    pointBackgroundColor: dayOrder.map(d => (isAfternoon && d === 'Wednesday' && wedOffset > 0) ? '#f59e0b' : mainColor),
+                                    pointBorderColor: '#ffffff',
+                                    pointBorderWidth: 1.5,
+                                    pointRadius: 5,
+                                    borderWidth: 2.8,
+                                    tension: 0.38,
+                                    order: 1
+                                },
+                                {
+                                    label: 'Last 10 Trips',
+                                    data: series.recentData,
+                                    borderColor: '#10b981',
+                                    backgroundColor: '#10b981',
+                                    borderDash: [5, 4],
+                                    pointRadius: 3.5,
+                                    borderWidth: 2,
+                                    tension: 0.38,
+                                    order: 2
+                                },
+                                {
+                                    label: '95th %ile',
+                                    data: series.p95Data,
+                                    borderColor: 'transparent',
+                                    pointRadius: 0,
+                                    fill: false,
+                                    tension: 0.38,
+                                    order: 3
+                                },
+                                {
+                                    label: '5th–95th Band',
+                                    data: series.p5Data,
+                                    borderColor: 'transparent',
+                                    backgroundColor: bandColor,
+                                    pointRadius: 0,
+                                    fill: '-1',
+                                    tension: 0.38,
+                                    order: 4
                                 }
-                                if (context.parsed && context.parsed.y !== undefined) {
-                                    return `${context.dataset.label}: ${formatMinutesToTime(context.parsed.y)}`;
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    grace: '10%',
+                                    grid: { color: gridColor },
+                                    ticks: {
+                                        callback: (v) => formatMinutesToTime(v),
+                                        color: labelColor,
+                                        font: { size: 11 }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: labelColor, font: { size: 11, weight: '600' } }
                                 }
-                                return context.dataset.label || '';
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(26, 28, 35, 0.92)',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    callbacks: {
+                                        title: (items) => {
+                                            const idx = items[0]?.dataIndex;
+                                            const meta = series.rawTooltipMap[idx];
+                                            if (!meta) return '';
+                                            return meta.shifted ? `${meta.day} (Early Dismissal)` : meta.day;
+                                        },
+                                        label: (context) => {
+                                            const meta = series.rawTooltipMap[context.dataIndex];
+                                            if (!meta) return '';
+                                            if (context.datasetIndex === 0) return `Overall Avg: ${formatMinutesToTime(meta.avg)}`;
+                                            if (context.datasetIndex === 1) return `Last 10 Avg: ${formatMinutesToTime(meta.recent)}`;
+                                            if (context.datasetIndex === 2) return `5th–95th Window: ${formatMinutesToTime(meta.p5, false)} – ${formatMinutesToTime(meta.p95)}`;
+                                            return null;
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }));
+                };
+
+                createWeeklyChart('departureChart', mSeries, '#4361ee', 'rgba(67, 97, 238, 0.16)', false);
+                createWeeklyChart('arrivalChart', aSeries, '#ff6384', 'rgba(255, 99, 132, 0.16)', true);
+
+            } else {
+                // Mode 2: Chronological Date History (Last 40 Trips + 5-Trip Rolling Average)
+                if (morningTitle) morningTitle.innerText = 'Morning Date History (Last 40 Trips)';
+                if (afternoonTitle) afternoonTitle.innerText = 'Afternoon Date History (Last 40 Trips)';
+                if (legendBar) {
+                    legendBar.innerHTML = `
+                        <div class="d-flex flex-wrap align-items-center gap-3 text-secondary">
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 14px; height: 3px; background: #4361ee; border-radius: 2px; display: inline-block;"></span> 5-Trip Rolling Avg
+                            </span>
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 7px; height: 7px; border-radius: 50%; background: rgba(67,97,238,0.55); display: inline-block;"></span> Individual Trip
+                            </span>
+                            <span class="d-inline-flex align-items-center gap-1">
+                                <span style="width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span> Wed Early Dismissal (Normalized)
+                            </span>
+                        </div>
+                        <div class="text-secondary">
+                            Chronological route history &amp; rolling trend
+                        </div>
+                    `;
+                }
+
+                const buildHistoryChart = (canvasId, rawChrono, mainColor, fillColor, isAfternoon, badgeEl) => {
+                    const ctx = document.getElementById(canvasId);
+                    if (!ctx) return;
+                    const recentTrips = (rawChrono || []).slice(-40);
+                    if (recentTrips.length === 0) return;
+
+                    const plottedPoints = recentTrips.map(item => {
+                        const isWed = isAfternoon && item.day === 'Wednesday' && wedOffset > 0;
+                        return {
+                            ...item,
+                            plottedMinutes: item.minutes + (isWed ? wedOffset : 0),
+                            isWed
+                        };
+                    });
+
+                    const rollingAvg = plottedPoints.map((pt, idx, arr) => {
+                        const start = Math.max(0, idx - 4);
+                        const win = arr.slice(start, idx + 1);
+                        return win.reduce((acc, x) => acc + x.plottedMinutes, 0) / win.length;
+                    });
+
+                    if (badgeEl && rollingAvg.length > 0) {
+                        const latestRolling = rollingAvg[rollingAvg.length - 1];
+                        badgeEl.innerText = `Rolling Avg: ${formatMinutesToTime(latestRolling)}`;
                     }
-                }
-            };
 
-            try {
-                const todayDepartureCtx = document.getElementById('todayDepartureChart');
-                if (todayDepartureCtx) {
-                    charts.push(new Chart(todayDepartureCtx.getContext('2d'), {
-                        type: 'boxplot',
+                    const labels = plottedPoints.map(p => {
+                        const parts = p.date.split('-');
+                        return parts.length === 3 ? `${parts[1]}/${parts[2]}` : p.date;
+                    });
+
+                    charts.push(new Chart(ctx.getContext('2d'), {
+                        type: 'line',
                         data: {
-                            labels: [selectedDay],
-                            datasets: [{
-                                label: 'Departures',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: '#ff6384',
-                                outlierColor: outlierColor,
-                                outlierBackgroundColor: outlierColor,
-                                borderWidth: 2,
-                                itemRadius: 6,
-                                data: [data.box_plot_data.departures[selectedDay] || []]
-                            }]
+                            labels,
+                            datasets: [
+                                {
+                                    label: '5-Trip Rolling Avg',
+                                    data: rollingAvg,
+                                    borderColor: mainColor,
+                                    backgroundColor: fillColor,
+                                    fill: true,
+                                    pointRadius: 0,
+                                    borderWidth: 2.5,
+                                    tension: 0.35,
+                                    order: 1
+                                },
+                                {
+                                    label: 'Trip Time',
+                                    data: plottedPoints.map(p => p.plottedMinutes),
+                                    borderColor: 'transparent',
+                                    backgroundColor: plottedPoints.map(p => p.isWed ? '#f59e0b' : mainColor),
+                                    pointRadius: 3.5,
+                                    pointHoverRadius: 5.5,
+                                    showLine: false,
+                                    order: 2
+                                }
+                            ]
                         },
-                        options: chartOptions
-                    }));
-                }
-
-                const todayArrivalCtx = document.getElementById('todayArrivalChart');
-                if (todayArrivalCtx) {
-                    charts.push(new Chart(todayArrivalCtx.getContext('2d'), {
-                        type: 'boxplot',
-                        data: {
-                            labels: [selectedDay],
-                            datasets: [{
-                                label: 'Arrivals',
-                                backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                                borderColor: '#4361ee',
-                                outlierColor: outlierColor,
-                                outlierBackgroundColor: outlierColor,
-                                borderWidth: 2,
-                                itemRadius: 6,
-                                data: [data.box_plot_data.arrivals[selectedDay] || []]
-                            }]
-                        },
-                        options: chartOptions
-                    }));
-                }
-
-                // Weekly Trend Charts
-                const allLabels = data.line_chart_data.labels;
-                const departureDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Departures');
-                const arrivalDataset = data.line_chart_data.datasets.find(ds => ds.label === 'Arrivals');
-
-                if (departureDataset) {
-                    const departureCtx = document.getElementById('departureChart');
-                    if (departureCtx) {
-                        charts.push(new Chart(departureCtx.getContext('2d'), {
-                            type: 'line',
-                            data: {
-                                labels: dayOrder,
-                                datasets: [{ 
-                                    ...departureDataset, 
-                                    borderColor: '#ff6384', 
-                                    backgroundColor: '#ff6384', 
-                                    pointRadius: 4, 
-                                    data: dayOrder.map(d => {
-                                        const idx = allLabels.indexOf(d);
-                                        return idx !== -1 ? departureDataset.data[idx] : null;
-                                    })
-                                }],
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    grace: '10%',
+                                    grid: { color: gridColor },
+                                    ticks: {
+                                        callback: (v) => formatMinutesToTime(v),
+                                        color: labelColor,
+                                        font: { size: 11 }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        color: labelColor,
+                                        maxTicksLimit: 6,
+                                        font: { size: 10 }
+                                    }
+                                }
                             },
-                            options: chartOptions
-                        }));
-                    }
-                }
-
-                if (arrivalDataset) {
-                    const arrivalCtx = document.getElementById('arrivalChart');
-                    if (arrivalCtx) {
-                        charts.push(new Chart(arrivalCtx.getContext('2d'), {
-                            type: 'line',
-                            data: {
-                                labels: dayOrder,
-                                datasets: [{ 
-                                    ...arrivalDataset, 
-                                    borderColor: '#4361ee', 
-                                    backgroundColor: '#4361ee', 
-                                    pointRadius: 4, 
-                                    data: dayOrder.map(d => {
-                                        const idx = allLabels.indexOf(d);
-                                        return idx !== -1 ? arrivalDataset.data[idx] : null;
-                                    })
-                                }],
-                            },
-                            options: chartOptions
-                        }));
-                    }
-                }
-
-                const boxplotArrivalsCtx = document.getElementById('boxplotArrivalsChart');
-                if (boxplotArrivalsCtx) {
-                    charts.push(new Chart(boxplotArrivalsCtx.getContext('2d'), {
-                        type: 'boxplot',
-                        data: {
-                            labels: dayOrder,
-                            datasets: [{
-                                label: 'Arrivals',
-                                backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                                borderColor: '#4361ee',
-                                outlierColor: outlierColor,
-                                outlierBackgroundColor: outlierColor,
-                                borderWidth: 1,
-                                itemRadius: 4,
-                                data: dayOrder.map(day => data.box_plot_data.arrivals[day] || [])
-                            }]
-                        },
-                        options: chartOptions
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(26, 28, 35, 0.92)',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    callbacks: {
+                                        title: (items) => {
+                                            const idx = items[0]?.dataIndex;
+                                            const pt = plottedPoints[idx];
+                                            return pt ? `${pt.date} (${shortDay[pt.day] || pt.day})` : '';
+                                        },
+                                        label: (context) => {
+                                            const pt = plottedPoints[context.dataIndex];
+                                            if (!pt) return '';
+                                            if (context.datasetIndex === 1) {
+                                                return `Actual Trip: ${formatMinutesToTime(pt.minutes)}${pt.isWed ? ' (Early Dismissal)' : ''}`;
+                                            }
+                                            if (context.datasetIndex === 0) {
+                                                return `5-Trip Rolling Avg: ${formatMinutesToTime(context.parsed.y)}`;
+                                            }
+                                            return '';
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }));
+                };
+
+                if (wedNormalizeNote) {
+                    wedNormalizeNote.innerHTML = wedOffset > 0
+                        ? `Amber dots (<strong>Wed</strong>) are normalized (+${Math.round(wedOffset)}m) to match regular afternoons. Hover any dot for its exact clock time.`
+                        : '';
                 }
 
-                const boxplotDeparturesCtx = document.getElementById('boxplotDeparturesChart');
-                if (boxplotDeparturesCtx) {
-                    charts.push(new Chart(boxplotDeparturesCtx.getContext('2d'), {
-                        type: 'boxplot',
-                        data: {
-                            labels: dayOrder,
-                            datasets: [{
-                                label: 'Departures',
-                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                                borderColor: '#ff6384',
-                                outlierColor: outlierColor,
-                                outlierBackgroundColor: outlierColor,
-                                borderWidth: 1,
-                                itemRadius: 4,
-                                data: dayOrder.map(day => data.box_plot_data.departures[day] || [])
-                            }]
-                        },
-                        options: chartOptions
-                    }));
-                }
-            } catch (err) { console.error("Chart failure:", err); }
+                buildHistoryChart('departureChart', data.chronological_data?.departures, '#4361ee', 'rgba(67, 97, 238, 0.12)', false, morningBadge);
+                buildHistoryChart('arrivalChart', data.chronological_data?.arrivals, '#ff6384', 'rgba(255, 99, 132, 0.12)', true, afternoonBadge);
+            }
         }
 
+        function renderDashboard(data) {
+            const selectedDay = daySelect.value;
+            const isWednesday = (selectedDay === 'Wednesday');
+            const wedBadge = document.getElementById('wednesdayHeroBadge');
+            if (wedBadge) {
+                wedBadge.classList.toggle('d-none', !isWednesday);
+            }
+
+            const departuresByDay = data.box_plot_data?.departures || {};
+            const arrivalsByDay = data.box_plot_data?.arrivals || {};
+
+            // Compute tight scales so timelines are never squished
+            const morningScale = computeScale(departuresByDay, 515, 540);
+            const afternoonRegularScale = computeScale(arrivalsByDay, 950, 985, 'Wednesday');
+            const wedArrivals = arrivalsByDay['Wednesday'] || [];
+            const wedScale = wedArrivals.length > 0
+                ? {
+                    min: Math.floor((Math.min(...wedArrivals) - 3) / 5) * 5,
+                    max: Math.ceil((Math.max(...wedArrivals) + 3) / 5) * 5
+                  }
+                : { min: 865, max: 895 };
+
+            const wedNote = document.getElementById('wedScaleNote');
+            if (wedNote && wedArrivals.length > 0) {
+                wedNote.innerHTML = `<span class="me-1">📅</span><strong>Wed Early Dismissal:</strong> shown on ${formatMinutesToTime(wedScale.min, false)}–${formatMinutesToTime(wedScale.max)} scale`;
+            }
+            if (wedBadge && data.average_times?.Wednesday?.arrival) {
+                wedBadge.innerText = `📅 Early Dismissal (Avg ${data.average_times.Wednesday.arrival})`;
+            }
+
+            // Render Top Hero Gauges (Style C)
+            renderHeroGauge(
+                'heroMorningContainer',
+                `${selectedDay} Morning Pick Up`,
+                true,
+                departuresByDay[selectedDay] || [],
+                data.jitter?.[selectedDay]?.departure,
+                morningScale.min,
+                morningScale.max,
+                false
+            );
+
+            const heroAfternoonScale = isWednesday ? wedScale : afternoonRegularScale;
+            renderHeroGauge(
+                'heroAfternoonContainer',
+                `${selectedDay} Afternoon Drop Off`,
+                false,
+                arrivalsByDay[selectedDay] || [],
+                data.jitter?.[selectedDay]?.arrival,
+                heroAfternoonScale.min,
+                heroAfternoonScale.max,
+                isWednesday
+            );
+
+            // Render Weekly Schedule (Style A or B)
+            renderWeeklyTimeline('weeklyMorningContainer', true, departuresByDay, morningScale, null);
+            renderWeeklyTimeline('weeklyAfternoonContainer', false, arrivalsByDay, afternoonRegularScale, wedScale);
+
+            // Render Extended Trend Line Charts
+            renderTrendCharts(data);
+        }
+
+        let initialLoad = true;
         async function fetchSummaryData() {
             try {
                 const filter = document.querySelector('input[name="filter"]:checked').value;
                 const response = await fetch(`/api/summary-data?filter=${filter}`);
                 const alertContainer = document.getElementById('alertContainer');
-                const tableBody = document.querySelector('#averageTimesTable tbody');
                 alertContainer.innerHTML = '';
-                tableBody.innerHTML = '';
 
                 if (!response.ok) {
+                    if (initialLoad && filter === 'current') {
+                        initialLoad = false;
+                        const allRadio = document.getElementById('filterAll');
+                        if (allRadio) {
+                            allRadio.checked = true;
+                            return fetchSummaryData();
+                        }
+                    }
+                    initialLoad = false;
                     const result = await response.json();
-                    alertContainer.innerHTML = `<div class="alert alert-info border-0 shadow-sm rounded-3 mb-4">${result.message || 'Error fetching data.'}</div>`;
+                    alertContainer.innerHTML = `<div class="alert alert-info border-0 shadow-sm rounded-3 mb-3 py-2 small">${result.message || 'Error fetching data.'}</div>`;
+                    ['heroMorningContainer', 'heroAfternoonContainer', 'weeklyMorningContainer', 'weeklyAfternoonContainer'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerHTML = '<div class="text-secondary small py-2 text-center">No data for selected filter.</div>';
+                    });
                     destroyCharts();
                     return;
                 }
 
+                initialLoad = false;
                 globalData = await response.json();
-                for (const day of dayOrder) {
-                    const avgTimes = globalData.average_times[day] || {};
-                    const minTimes = globalData.min_times[day] || {};
-                    const isToday = (day === todayName);
-                    const row = document.createElement('tr');
-                    if (isToday) row.classList.add('table-primary');
-                    
-                    const minDepClass = isToday ? 'text-danger fw-bold' : 'text-muted small';
-                    const minArrClass = isToday ? 'text-danger fw-bold' : 'text-muted small';
-
-                    row.innerHTML = `
-                        <td class="px-4 py-3 fw-semibold">${day}</td>
-                        <td class="py-3 text-center text-dark">${avgTimes.departure || '—'}</td>
-                        <td class="py-3 text-center ${minDepClass}">${minTimes.departure || '—'}</td>
-                        <td class="py-3 text-center text-dark">${avgTimes.arrival || '—'}</td>
-                        <td class="py-3 text-center ${minArrClass}">${minTimes.arrival || '—'}</td>
-                    `;
-                    tableBody.appendChild(row);
-                }
-                renderCharts(globalData);
-            } catch (err) { console.error("fetchSummaryData failure:", err); }
+                renderDashboard(globalData);
+            } catch (err) {
+                console.error("fetchSummaryData failure:", err);
+            }
         }
 
         const fetchEntries = async () => {
@@ -553,11 +1032,11 @@
             entries.forEach(e => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="small px-3">${e.date}</td>
+                    <td class="small px-2 px-sm-3">${e.date}</td>
                     <td class="small">${e.time}</td>
                     <td class="small"><span class="badge ${e.type === 'arrival' ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger'}">${e.type}</span></td>
-                    <td class="text-end px-3">
-                        <button class="btn btn-sm btn-link text-danger text-decoration-none fw-bold" onclick="deleteEntry(${e.id})">Delete</button>
+                    <td class="text-end px-2 px-sm-3">
+                        <button class="btn btn-sm btn-link text-danger text-decoration-none fw-bold p-0" onclick="deleteEntry(${e.id})">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -642,9 +1121,18 @@
         });
 
         document.querySelectorAll('input[name="filter"]').forEach(radio => radio.addEventListener('change', fetchSummaryData));
-        daySelect.addEventListener('change', () => { if(globalData) renderCharts(globalData); });
-        document.getElementById('showWeeklyToggle').addEventListener('change', (e) => {
-            document.getElementById('weeklyChartsSection').style.display = e.target.checked ? 'block' : 'none';
+        document.querySelectorAll('input[name="weeklyStyle"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentWeeklyStyle = e.target.value;
+                if (globalData) renderDashboard(globalData);
+            });
+        });
+        daySelect.addEventListener('change', () => { if (globalData) renderDashboard(globalData); });
+        document.querySelectorAll('input[name="trendMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentTrendMode = e.target.value;
+                if (globalData) renderTrendCharts(globalData);
+            });
         });
 
         checkConfig();
